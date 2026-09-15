@@ -13,3 +13,12 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 - [ ] Configurar conexión real a MongoDB Atlas (con `.env`, no subir credenciales).
 - [ ] Configurar proyecto de Firebase (Auth + Storage).
 - [ ] Documentar los primeros contratos en `docs/contratos.md`.
+
+## 2026-09-15 — Módulo 1, Fase 1 (mergeado a dev, PR #<NÚMERO>)
+- [x] Entidad `PerfilInfantil` + enums (`Sexo`, `NivelActividadFisica`).
+- [x] DTO `PerfilInfantilDTO` + puerto `PerfilInfantilPort` (Protocol async).
+- [x] Contrato público documentado en `docs/contratos.md`.
+- [x] 27 tests unitarios (dominio + contrato), todos pasando.
+- [ ] Fase 2: esqueleto FastAPI + Mongo Atlas + Firebase Auth (por empezar).
+
+**Módulos 2 y 3:** pueden consumir `app.modulo1_usuarios.ports.perfil_infantil_port`.
