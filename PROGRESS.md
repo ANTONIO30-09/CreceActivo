@@ -22,3 +22,14 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 - [ ] Fase 2: esqueleto FastAPI + Mongo Atlas + Firebase Auth (por empezar).
 
 **Módulos 2 y 3:** pueden consumir `app.modulo1_usuarios.ports.perfil_infantil_port`.
+
+## 2026-09-15 — Módulo 1, Fase 2 (esqueleto FastAPI + Mongo Atlas + Firebase Auth)
+- [x] Configuracion tipada con `pydantic-settings` (`.env` en la raiz del monorepo).
+- [x] Cliente `motor` async con ping en lifespan.
+- [x] Verificacion de tokens con Firebase Admin SDK.
+- [x] App FastAPI + CORS + router del Modulo 1.
+- [x] Endpoints base: `GET /`, `GET /modulo1/health`, `GET /modulo1/whoami`.
+- [x] Tests de arranque, health y auth mockeada (32 pasando).
+- [ ] Fase 3: CRUD de `PerfilInfantil` + repositorio Mongo (por empezar).
+
+**Modulos 2 y 3:** pueden pegarle al backend en `http://localhost:8000`.

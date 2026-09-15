@@ -96,3 +96,57 @@ En esta version el puerto **no lanza excepciones de dominio**: usa
 - Calculo de IMC (responsabilidad del Modulo 2 / Franco).
 - Reglas nutricionales o de ejercicios.
 - Persistencia y detalles de MongoDB Atlas.
+
+---
+
+## Modulo 1 - Endpoints base (Fase 2)
+
+- **Version:** 2.0
+- **Fecha:** 2026-09-15
+- **Rama:** `feature/modulo1-fastapi-skeleton`
+
+### 1. Arranque del backend
+
+    cd backend
+    uvicorn app.main:app --reload
+
+Al levantar, el lifespan:
+1. Inicializa Firebase Admin con `FIREBASE_SERVICE_ACCOUNT_PATH`.
+2. Abre cliente `motor` contra `MONGODB_URI` y hace `ping`.
+
+Si cualquiera de los dos falla, la app no arranca.
+
+### 2. Endpoints publicos
+
+| Metodo | Ruta | Auth | Respuesta |
+|---|---|---|---|
+| GET | `/` | No | `{"service": "CreceActivo backend", "version": "..."}` |
+| GET | `/modulo1/health` | No | `{"status": "ok", "env": "...", "db": "ok"}` |
+
+`db` es `ok` si el ping a Mongo respondio; `error` si no.
+
+### 3. Endpoints protegidos (Bearer Firebase)
+
+| Metodo | Ruta | Auth | Respuesta |
+|---|---|---|---|
+| GET | `/modulo1/whoami` | Si | `{"uid": "...", "email": "..."}` |
+
+Header esperado: `Authorization: Bearer <idToken>`.
+Token ausente, invalido o expirado -> 401.
+
+### 4. Variables de entorno (backend)
+
+| Variable | Obligatoria | Descripcion |
+|---|---|---|
+| `MONGODB_URI` | Si | URI de MongoDB Atlas. |
+| `MONGODB_DB_NAME` | No (default `creceactivo`) | Nombre de la base. |
+| `FIREBASE_PROJECT_ID` | Si | Project ID de Firebase. |
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | Si | Ruta ABSOLUTA al JSON del service account, fuera del repo. |
+| `CORS_ORIGINS` | No (default `http://localhost:5173`) | Origenes permitidos, separados por coma. |
+| `APP_ENV` | No (default `development`) | Se expone en `/modulo1/health`. |
+
+### 5. Fuera de esta fase
+
+- CRUD de `PerfilInfantil` (Fase 3, endpoints `/modulo1/perfiles`).
+- Repositorio Mongo que implemente `PerfilInfantilPort`.
+- Despliegue a Cloud Run.
