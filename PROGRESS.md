@@ -14,7 +14,7 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 - [ ] Configurar proyecto de Firebase (Auth + Storage).
 - [ ] Documentar los primeros contratos en `docs/contratos.md`.
 
-## 2026-09-15 — Módulo 1, Fase 1 (mergeado a dev, PR #<NÚMERO>)
+## 2026-09-15 — Módulo 1, Fase 1 (mergeado a dev, PR #1)
 - [x] Entidad `PerfilInfantil` + enums (`Sexo`, `NivelActividadFisica`).
 - [x] DTO `PerfilInfantilDTO` + puerto `PerfilInfantilPort` (Protocol async).
 - [x] Contrato público documentado en `docs/contratos.md`.
