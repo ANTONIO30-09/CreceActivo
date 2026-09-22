@@ -33,3 +33,14 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 - [ ] Fase 3: CRUD de `PerfilInfantil` + repositorio Mongo (por empezar).
 
 **Modulos 2 y 3:** pueden pegarle al backend en `http://localhost:8000`.
+
+## 2026-09-22 — Módulo 1, esquema Mongo de perfiles_infantiles
+- [x] Validador `$jsonSchema` de `perfiles_infantiles` (strict / error), alineado al dominio.
+- [x] Índice parcial `idx_perfiles_tutor_activo` sobre `tutor_id` con `activo: true`.
+- [x] Tope de 30 alergias y tope de 128 caracteres en `tutor_id`, en dominio y en Mongo.
+- [x] `edad` se mantiene como entero 6-14 declarado por el tutor (sin `fecha_nacimiento`).
+- [x] Persistencia y convención para colecciones futuras documentadas en `docs/contratos.md`.
+- [ ] Fase 3: CRUD de `PerfilInfantil` + repositorio Mongo que implemente `PerfilInfantilPort` (pendiente).
+
+**Módulos 2 y 3:** el puerto no cambió. La colección no se importa; se consume por `PerfilInfantilPort`.
+
