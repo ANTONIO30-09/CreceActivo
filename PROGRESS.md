@@ -33,3 +33,4 @@ Inicializaci√≥n del repositorio. Estructura base creada siguiendo arquitectura h
 - [ ] Fase 3: CRUD de `PerfilInfantil` + repositorio Mongo (por empezar).
 
 **Modulos 2 y 3:** pueden pegarle al backend en `http://localhost:8000`.
+- M¢dulo 3: Se inici¢ la estructuraci¢n de componentes para la biblioteca de videos. 
