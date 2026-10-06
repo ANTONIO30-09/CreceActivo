@@ -33,3 +33,7 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 - [ ] Fase 3: CRUD de `PerfilInfantil` + repositorio Mongo (por empezar).
 
 **Modulos 2 y 3:** pueden pegarle al backend en `http://localhost:8000`.
+
+### Módulo 2 - Nutrición (Base de Datos)
+- [x] Definición de modelos Pydantic para Menús, Guías y Especialistas (`backend/app/modulo2_nutricion/models.py`).
+- [x] Creación de script de carga inicial de datos sintéticos de prueba (`backend/seed_mod2.py`).
