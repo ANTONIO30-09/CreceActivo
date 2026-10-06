@@ -8,9 +8,11 @@ import pytest
 
 from app.modulo1_usuarios.domain.enums import NivelActividadFisica, Sexo
 from app.modulo1_usuarios.domain.perfil_infantil import (
+    ALERGIAS_MAX_ITEMS,
     EDAD_MAXIMA,
     EDAD_MINIMA,
     NOMBRE_MAX_LEN,
+    TUTOR_ID_MAX_LEN,
     PerfilInfantil,
     PerfilInfantilInvalido,
 )
@@ -104,6 +106,17 @@ def test_alergias_se_normalizan_y_son_tupla():
 def test_alergia_vacia_falla():
     with pytest.raises(PerfilInfantilInvalido):
         PerfilInfantil.crear(**_kwargs_validos(alergias=[""]))
+
+
+def test_demasiadas_alergias_falla():
+    alergias = [f"alergia-{indice}" for indice in range(ALERGIAS_MAX_ITEMS + 1)]
+    with pytest.raises(PerfilInfantilInvalido):
+        PerfilInfantil.crear(**_kwargs_validos(alergias=alergias))
+
+
+def test_tutor_id_demasiado_largo_falla():
+    with pytest.raises(PerfilInfantilInvalido):
+        PerfilInfantil.crear(**_kwargs_validos(tutor_id="t" * (TUTOR_ID_MAX_LEN + 1)))
 
 
 def test_habitos_vacios_se_convierten_en_none():
