@@ -1,3 +1,6 @@
+"""Enums del dominio de nutrición. Sin lógica."""
+from __future__ import annotations
+
 from enum import Enum
 
 
@@ -12,13 +15,3 @@ class TipoComida(str, Enum):
     ALMUERZO = "Almuerzo"
     CENA = "Cena"
     MERIENDA = "Merienda"
-
-
-def obtener_rango_edad(edad: int) -> RangoEdad:
-    if edad < 6 or edad > 14:
-        raise ValueError("La edad debe estar entre 6 y 14 años.")
-    if edad <= 8:
-        return RangoEdad.DE_6_A_8
-    if edad <= 11:
-        return RangoEdad.DE_9_A_11
-    return RangoEdad.DE_12_A_14
