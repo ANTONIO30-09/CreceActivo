@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // El frontend recibe URLs firmadas del backend. No usa el SDK de Storage.
+    // Admin SDK y URLs firmadas se controlan mediante IAM, no estas reglas.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
