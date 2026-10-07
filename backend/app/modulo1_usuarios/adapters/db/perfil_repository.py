@@ -89,3 +89,15 @@ class PerfilInfantilRepository:
     async def insertar(self, perfil: PerfilInfantil) -> None:
         """Guarda un perfil nuevo. El validador de Mongo es la segunda barrera."""
         await self._col.insert_one(_entidad_a_doc(perfil))
+
+    async def actualizar(self, perfil: PerfilInfantil) -> None:
+        """Actualiza un perfil existente."""
+        await self._col.replace_one({"_id": perfil.id}, _entidad_a_doc(perfil))
+
+    async def desactivar(self, perfil_id: str) -> bool:
+        """Borrado suave: marca activo=False."""
+        res = await self._col.update_one(
+            {"_id": perfil_id},
+            {"$set": {"activo": False, "actualizado_en": datetime.now(timezone.utc)}}
+        )
+        return res.modified_count > 0
