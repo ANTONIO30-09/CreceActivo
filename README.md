@@ -6,27 +6,33 @@ Plataforma web para prevenir el sedentarismo y la obesidad infantil (6-14 años)
 
 ## Equipo
 
-- **Líder general:** Antonio Vicente García Corrales
+**Líder general del proyecto:** Antonio Vicente Garcia Corrales
 
 ### Módulo 1 — Usuarios y perfil infantil
 
-- Antonio Vicente García Corrales (sublíder) — Backend
-- Natalia Camacho Cardozo — Frontend
-- Pablo Nicolás Villazón Quiroga — Base de Datos
-- David Ignacio Bazoberry Grigoriu — Backend y API
+| Integrante | Rol |
+| --- | --- |
+| Antonio Vicente Garcia Corrales | Backend |
+| Natalia Camacho Cardozo | Frontend |
+| Pablo Nicolas Villazon Quiroga | Base de datos |
+| David Ignacio Bazoberry Grigoriu | Backend y API |
 
 ### Módulo 2 — Nutrición y orientación profesional
 
-- Juan Pablo Villca Revollo (sublíder) — Backend
-- Matthew Alejandro Gómez Torrez — Frontend
-- Misael Patrick Ramos Torrez — Base de Datos
-- Franco Guerra Roca — Backend y Migraciones
+| Integrante | Rol |
+| --- | --- |
+| Juan Pablo Villca Revollo | Backend |
+| Matthew Alejandro Gomez Torrez | Frontend |
+| Misael Patrick Ramos Torrez | Base de datos |
+| Franco Guerra Roca | Backend y migraciones |
 
 ### Módulo 3 — Ejercicios, progreso y motivación
 
-- Allen Jhonatan Requena Heredia (sublíder) — Frontend
-- Kevin Peña Jamachi — Storage y Bucket
-- Luis David Céspedes Camacho — Backend y Base de Datos
+| Integrante | Rol |
+| --- | --- |
+| Allen Jhonatan Requena Heredia | Frontend |
+| Kevin Peña Jamachi | Storage y bucket |
+| Luis David Cespedes Camacho | Backend y base de datos |
 
 ## Stack tecnológico
 
