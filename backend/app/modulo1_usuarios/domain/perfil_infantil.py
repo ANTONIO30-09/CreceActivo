@@ -21,6 +21,8 @@ __all__ = [
     "HABITOS_MAX_LEN",
     "OBJETIVOS_MAX_LEN",
     "ALERGIA_MAX_LEN",
+    "ALERGIAS_MAX_ITEMS",
+    "TUTOR_ID_MAX_LEN",
     "PESO_MAX_KG",
     "ESTATURA_MAX_CM",
 ]
@@ -31,6 +33,8 @@ NOMBRE_MAX_LEN: int = 60
 HABITOS_MAX_LEN: int = 500
 OBJETIVOS_MAX_LEN: int = 500
 ALERGIA_MAX_LEN: int = 50
+ALERGIAS_MAX_ITEMS: int = 30
+TUTOR_ID_MAX_LEN: int = 128
 PESO_MAX_KG: float = 200.0
 ESTATURA_MAX_CM: float = 250.0
 
@@ -67,7 +71,7 @@ class PerfilInfantil:
 
     def __post_init__(self) -> None:
         _validar_id(self.id, "id")
-        _validar_id(self.tutor_id, "tutor_id")
+        _validar_tutor_id(self.tutor_id)
 
         object.__setattr__(
             self,
@@ -163,6 +167,14 @@ def _validar_id(valor: object, campo: str) -> None:
         raise PerfilInfantilInvalido(f"{campo} es obligatorio y no puede estar vacio")
 
 
+def _validar_tutor_id(valor: object) -> None:
+    _validar_id(valor, "tutor_id")
+    if not isinstance(valor, str) or len(valor) > TUTOR_ID_MAX_LEN:
+        raise PerfilInfantilInvalido(
+            f"tutor_id no puede superar {TUTOR_ID_MAX_LEN} caracteres"
+        )
+
+
 def _validar_texto_obligatorio(valor: object, campo: str, max_len: int) -> str:
     if not isinstance(valor, str):
         raise PerfilInfantilInvalido(f"{campo} debe ser texto")
@@ -233,6 +245,10 @@ def _validar_alergias(valor: object) -> tuple[str, ...]:
                 f"cada alergia no puede superar {ALERGIA_MAX_LEN} caracteres"
             )
         limpias.append(limpia)
+    if len(limpias) > ALERGIAS_MAX_ITEMS:
+        raise PerfilInfantilInvalido(
+            f"alergias no puede superar {ALERGIAS_MAX_ITEMS} items"
+        )
     return tuple(limpias)
 
 

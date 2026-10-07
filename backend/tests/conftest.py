@@ -28,6 +28,8 @@ def client():
 
     with patch("app.main.inicializar_firebase"), \
          patch("app.main.conectar_mongodb", new_callable=AsyncMock), \
+         patch("app.main.get_db", return_value=mock_db), \
+         patch("app.main.asegurar_perfiles_infantiles", new_callable=AsyncMock), \
          patch("app.main.cerrar_mongodb", new_callable=AsyncMock), \
          patch(
              "app.modulo1_usuarios.adapters.api.router.get_db",
