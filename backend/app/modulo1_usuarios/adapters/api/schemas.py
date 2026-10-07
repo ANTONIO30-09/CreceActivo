@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 from pydantic import BaseModel, Field
 
 from app.modulo1_usuarios.domain.enums import NivelActividadFisica, Sexo
@@ -42,6 +41,3 @@ class PerfilInfantilResponseSchema(BaseModel):
     habitos_alimenticios: str | None = None
     alergias: list[str] = []
     objetivos: str | None = None
-    activo: bool
-    creado_en: datetime
-    actualizado_en: datetime
