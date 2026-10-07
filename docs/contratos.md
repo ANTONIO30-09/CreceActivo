@@ -53,15 +53,15 @@ _(por definir)_
 | Campo | Tipo | Descripcion |
 |---|---|---|
 | `id` | `str` | Identificador del perfil. |
-| `tutor_id` | `str` | UID de Firebase del padre/tutor propietario. |
+| `tutor_id` | `str` | UID de Firebase del padre/tutor propietario (1-128 caracteres). |
 | `nombre` | `str` | Nombre del nino/a (1-60 caracteres). |
-| `edad` | `int` | Entre 6 y 14 anios. |
+| `edad` | `int` | Entre 6 y 14 anios. Dato declarado por el tutor, no calculado. |
 | `sexo` | `Sexo` | Enum. |
 | `peso_kg` | `float` | > 0 y <= 200. |
 | `estatura_cm` | `float` | > 0 y <= 250. |
 | `nivel_actividad_fisica` | `NivelActividadFisica` | Enum. |
 | `habitos_alimenticios` | `str or None` | Texto libre (<= 500). `None` si no se declaro. |
-| `alergias` | `tuple[str, ...]` | Cada item <= 50 caracteres. Vacia si no hay. |
+| `alergias` | `tuple[str, ...]` | Cada item <= 50 caracteres. Maximo 30 items. Vacia si no hay. |
 | `objetivos` | `str or None` | Texto libre (<= 500). `None` si no se declaro. |
 
 **No expuestos (internos):** `activo`, `creado_en`, `actualizado_en`.
@@ -95,7 +95,9 @@ En esta version el puerto **no lanza excepciones de dominio**: usa
 
 - Calculo de IMC (responsabilidad del Modulo 2 / Franco).
 - Reglas nutricionales o de ejercicios.
-- Persistencia y detalles de MongoDB Atlas.
+- Persistencia fisica de MongoDB Atlas. No forma parte de este puerto.
+  El modelo de la coleccion esta en "Persistencia interna — perfiles_infantiles".
+  Los modulos 2 y 3 siguen sin importar `adapters`.
 
 ---
 
@@ -113,8 +115,10 @@ En esta version el puerto **no lanza excepciones de dominio**: usa
 Al levantar, el lifespan:
 1. Inicializa Firebase Admin con `FIREBASE_SERVICE_ACCOUNT_PATH`.
 2. Abre cliente `motor` contra `MONGODB_URI` y hace `ping`.
+3. Asegura el validador y el indice de `perfiles_infantiles`.
 
-Si cualquiera de los dos falla, la app no arranca.
+Si cualquiera de los dos primeros falla, la app no arranca. Si el tercero
+falla (permisos insuficientes sobre la coleccion), la app tampoco arranca.
 
 ### 2. Endpoints publicos
 
@@ -150,3 +154,93 @@ Token ausente, invalido o expirado -> 401.
 - CRUD de `PerfilInfantil` (Fase 3, endpoints `/modulo1/perfiles`).
 - Repositorio Mongo que implemente `PerfilInfantilPort`.
 - Despliegue a Cloud Run.
+
+---
+
+## Persistencia interna — perfiles_infantiles
+
+- **Version:** 1.0
+- **Fecha:** 2026-09-22
+- **Rama:** `feat/mod1-esquema-perfiles`
+- **Dueno:** base de datos, Modulo 1
+- **Codigo:** `app.modulo1_usuarios.adapters.db.perfiles_infantiles`
+
+Esta seccion describe la coleccion. No es una superficie de importacion.
+Modulos 2 y 3 siguen leyendo perfiles solo por `PerfilInfantilPort`.
+
+### 1. Coleccion
+
+Nombre: `perfiles_infantiles`.
+
+`_id` es un string UUID (no ObjectId). `tutor_id` es el UID de Firebase
+del tutor (1 a 128 caracteres); no es un UUID. Un tutor puede tener varios
+perfiles: no hay indice unico sobre `tutor_id`.
+
+`edad` es un entero de 6 a 14 declarado por el tutor. No se guarda
+`fecha_nacimiento`. La edad queda desactualizada hasta que el tutor la
+edite. El Modulo 2 agrupa menus y guias por `rango_edad` ("6-8 años",
+"9-11 años", "12-14 años") a partir de ese entero.
+
+Campos obligatorios, siempre presentes:
+
+- `_id`, `tutor_id`, `nombre`, `edad`, `sexo`, `peso_kg`, `estatura_cm`,
+  `nivel_actividad_fisica`
+- `habitos_alimenticios` y `objetivos`: string de 1 a 500 caracteres, o `null`
+- `alergias`: array de strings (cada uno de 1 a 50 caracteres, maximo 30 items)
+- `activo`: bool de borrado logico
+- `creado_en` y `actualizado_en`: fecha BSON en UTC
+
+No se admiten campos extra (`additionalProperties: false`). Los limites
+coinciden con las constantes de `PerfilInfantil`.
+
+### 2. Validador
+
+`$jsonSchema` con `validationLevel: strict` y `validationAction: error`.
+Se aplica al arrancar con `asegurar_perfiles_infantiles`, despues del ping:
+
+- si la coleccion no existe, se crea con el validador;
+- si ya existe, `collMod` actualiza el validador.
+
+Los documentos ya cargados que no cumplan no se borran. Un update
+posterior falla hasta corregirlos.
+
+### 3. Indice
+
+`idx_perfiles_tutor_activo` sobre `tutor_id`, parcial, con
+`partialFilterExpression: { activo: true }`.
+
+Cubre `listar_por_tutor`, que solo devuelve perfiles activos, y deja
+fuera los borrados logicos. `_id` sigue siendo el unico indice unico.
+
+### 4. Checklist operativo de Atlas
+
+No esta en el codigo. Quien administra el cluster lo verifica:
+
+- la URI usa `mongodb+srv` (TLS);
+- el cluster tiene cifrado en reposo;
+- el usuario de la app tiene `readWrite` solo sobre la base `creceactivo`,
+  no `atlasAdmin`;
+- la lista de IPs del cluster no queda abierta a `0.0.0.0/0` en produccion.
+
+La regla "un tutor solo ve a sus hijos" es de la aplicacion (Fase 3), no
+del validador. No hay cifrado campo a campo en esta fase.
+
+### 5. Convencion para colecciones futuras
+
+Cuando el Modulo 2 o el 3 necesiten una coleccion, se acuerda asi antes
+de cargarla:
+
+- nombre en snake_case, en espanol y en plural (`perfiles_infantiles`);
+- `_id` string UUID, salvo que haya una clave natural ya acordada;
+- `creado_en` y `actualizado_en` como fecha UTC cuando el documento cambia;
+- borrado logico con `activo` (bool) si la coleccion no es solo de
+  referencia;
+- validador `$jsonSchema` e indices declarados juntos en
+  `adapters/db`, y asegurados al arrancar;
+- las constantes de limite viven en el dominio del modulo; el esquema
+  las importa, no las duplica.
+
+Pendiente de revisar en conjunto, sin tocar la rama del Modulo 2: el
+PR #3 inserta en `menus` y `specialists` sin validador y con nombres en
+ingles. Cuando se alineen, se les aplica esta convencion.
+

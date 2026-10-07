@@ -7,6 +7,7 @@ Arranque:
 Al levantar, el lifespan:
 1. Inicializa Firebase Admin (falla si el service account no existe).
 2. Abre el cliente de MongoDB Atlas y hace ping (falla si la URI no responde).
+3. Asegura el validador y el indice de perfiles_infantiles.
 """
 from __future__ import annotations
 
@@ -17,9 +18,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.core.database import cerrar_mongodb, conectar_mongodb
+from app.core.database import cerrar_mongodb, conectar_mongodb, get_db
 from app.core.security import inicializar_firebase
 from app.modulo1_usuarios.adapters.api.router import router as modulo1_router
+from app.modulo1_usuarios.adapters.db import asegurar_perfiles_infantiles
 
 
 @asynccontextmanager
@@ -27,6 +29,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Recursos compartidos durante la vida de la app."""
     inicializar_firebase()
     await conectar_mongodb()
+    await asegurar_perfiles_infantiles(get_db())
     try:
         yield
     finally:
