@@ -62,7 +62,7 @@ Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema M
 - [x] Corregido `PATCH /modulo1/perfiles/{id}` (PR #7): usaba campos que el DTO no expone y devolvía 500; los errores de dominio ahora responden 422.
 - [x] Respuesta de perfiles alineada con el DTO público: ya no incluye `activo`, `creado_en` ni `actualizado_en`.
 - [x] README con nombres completos, módulos y roles (PR #8) y `docs/AVANCES.md` (PR #10).
-- Tests del backend: 44 pasando. El frontend compila con `npm run build`.
+- Tests del backend: 66 pasando (44 + 22 de storage del módulo 3). El frontend compila con `npm run build`.
 
 ## 2026-10-07 — Módulo 3: Storage y bucket — Kevin
 - Puerto y adaptador Firebase Storage para videos por rango de edad.

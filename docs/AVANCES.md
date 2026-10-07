@@ -4,7 +4,7 @@ Estado al 7 de octubre de 2026, reconstruido a partir del historial de Git y de
 los Pull Requests (#1 a #9). Refleja lo que esta subido al repositorio; el
 trabajo que alguien tenga en local sin subir no aparece aqui.
 
-Estado general: `dev` y `main` estan sincronizadas, los 44 tests del backend
+Estado general: `dev` y `main` estan sincronizadas, los 66 tests del backend
 pasan y el frontend compila (`npm run build`).
 
 ## Resumen por modulo
@@ -13,7 +13,7 @@ pasan y el frontend compila (`npm run build`).
 | --- | --- | --- | --- |
 | 1 · Usuarios y perfil infantil | Backend avanzado | Contrato publico, API base, auth Firebase, esquema Mongo, repositorio, CRUD de perfiles, 44 tests | Frontend (registro, login, perfiles); tests de endpoints exitosos y del repositorio contra Mongo real |
 | 2 · Nutricion y orientacion profesional | Inicial | Modelos Pydantic, script seed, frontend inicial de nutricion | Guias y menus, IMC con percentiles, chatbot, solicitud a especialistas, endpoints |
-| 3 · Ejercicios, progreso y motivacion | Inicial | Base Vite + Tailwind, `VideoCard`, `VideoLibrary` | Backend, storage de videos, registro de rutinas/agua/minutos, rachas e insignias, metas |
+| 3 · Ejercicios, progreso y motivacion | En marcha | Base Vite + Tailwind, `VideoCard`, `VideoLibrary`, puerto y adaptador de Storage de videos, endpoint de URL firmada | Catalogo de videos con metadatos, registro de rutinas/agua/minutos, rachas e insignias, metas |
 
 ## Modulo 1 — Usuarios y perfil infantil
 
@@ -64,6 +64,8 @@ pasan y el frontend compila (`npm run build`).
 **Frontend (Matthew Gomez)**
 - Frontend inicial de nutricion (PR #4).
 
+**Deuda conocida (nota en `docs/contratos.md`):** el seed inserta en `menus` y `specialists` sin validador y con nombres en ingles; falta alinearlos con la convencion del modulo 1.
+
 **Pendiente:** guias y menus validados (RF-05), IMC infantil con percentiles (RF-06, RF-07), chatbot con respuestas validadas (RF-08), solicitud de orientacion a especialistas (RF-09), endpoints y servicio del modulo. Sin commits visibles de Juan Pablo Villca ni Franco Guerra.
 
 ## Modulo 3 — Ejercicios, progreso y motivacion
@@ -73,7 +75,14 @@ pasan y el frontend compila (`npm run build`).
 - Componentes `VideoCard` y `VideoLibrary` (biblioteca de videos).
 - Reubicacion de componentes en `frontend/` y limpieza de configuracion en la raiz (PR #6).
 
-**Pendiente:** backend del modulo, almacenamiento de videos (RF-10, RF-11), registro de rutinas, agua y minutos (RF-12), rachas e insignias (RF-13), metas familiares (RF-14). Sin commits visibles de Kevin Pena ni Luis David Cespedes.
+**Storage de videos (Kevin Pena, usuario `kpena6532-commits`, PR #13)**
+- Puerto `VideoStoragePort` y adaptador `FirebaseVideoStorage` (Firebase Storage, bucket privado, operaciones fuera del event loop).
+- Endpoint `GET /modulo3/videos/{grupo_edad}/{video_id}/url`: entrega una URL firmada temporal (900 s por defecto) solo a tutores autenticados.
+- Script administrativo `backend/subir_video_mod3.py` para cargar MP4 sin sobrescribir existentes.
+- `storage.rules` que niega todo acceso directo al bucket, `.gitignore` para credenciales y videos, y `docs/modulo3_storage.md`.
+- 22 tests nuevos (66 en total), sin Firebase real.
+
+**Pendiente:** catalogo de videos con metadatos (duracion, dificultad, materiales, seguridad; RF-11) y su listado por rango de edad (RF-10); decidir si el endpoint exige un perfil infantil registrado (CU-05); registro de rutinas, agua y minutos (RF-12); rachas e insignias (RF-13); metas familiares (RF-14). Sin commits visibles de Luis David Cespedes. La subida a Firebase no se ha probado con un bucket real.
 
 ## Aportes por integrante
 
@@ -88,7 +97,7 @@ pasan y el frontend compila (`npm run build`).
 | Misael Patrick Ramos Torrez | `surevalle2627` (por confirmar) | M2 · Base de datos | Modelos Pydantic, seed y avance en `PROGRESS.md` |
 | Franco Guerra Roca | sin identificar | M2 · Backend y migraciones | Sin aportes visibles |
 | Allen Jhonatan Requena Heredia | `jhonesde` (por confirmar) | M3 · Frontend | Base Vite/Tailwind, biblioteca de videos |
-| Kevin Pena Jamachi | sin identificar | M3 · Storage y bucket | Sin aportes visibles |
+| Kevin Pena Jamachi | `kpena6532-commits` | M3 · Storage y bucket | Puerto y adaptador de Storage, endpoint de URL firmada, script de carga, reglas del bucket, 22 tests |
 | Luis David Cespedes Camacho | sin identificar | M3 · Backend y BD | Sin aportes visibles |
 
 "Sin aportes visibles" significa que no hay commits ni Pull Requests suyos en el
