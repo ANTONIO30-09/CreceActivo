@@ -86,6 +86,11 @@ class PerfilInfantilRepository:
 
     # ---- Metodos internos del Modulo 1 (no son parte del puerto) ----
 
+    async def obtener_entidad(self, perfil_id: str) -> PerfilInfantil | None:
+        """Uso interno del Modulo 1: devuelve la entidad completa, no el DTO."""
+        doc = await self._col.find_one({"_id": perfil_id, "activo": True})
+        return None if doc is None else _doc_a_entidad(doc)
+
     async def insertar(self, perfil: PerfilInfantil) -> None:
         """Guarda un perfil nuevo. El validador de Mongo es la segunda barrera."""
         await self._col.insert_one(_entidad_a_doc(perfil))

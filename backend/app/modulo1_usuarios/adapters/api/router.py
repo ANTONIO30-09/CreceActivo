@@ -5,13 +5,18 @@ Fase 3: aqui viviran los endpoints CRUD de PerfilInfantil.
 """
 from __future__ import annotations
 
+from dataclasses import replace
+from datetime import datetime, timezone
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.core.security import verificar_firebase_token
-from app.modulo1_usuarios.domain.perfil_infantil import PerfilInfantil
+from app.modulo1_usuarios.domain.perfil_infantil import (
+    PerfilInfantil,
+    PerfilInfantilInvalido,
+)
 from app.modulo1_usuarios.adapters.db.perfil_repository import PerfilInfantilRepository
 from app.modulo1_usuarios.adapters.api.schemas import (
     PerfilInfantilCreateSchema,
@@ -65,18 +70,23 @@ async def crear_perfil(
 ) -> Any:
     tutor_id = user["uid"]
     
-    perfil = PerfilInfantil.crear(
-        tutor_id=tutor_id,
-        nombre=payload.nombre,
-        edad=payload.edad,
-        sexo=payload.sexo,
-        peso_kg=payload.peso_kg,
-        estatura_cm=payload.estatura_cm,
-        nivel_actividad_fisica=payload.nivel_actividad_fisica,
-        habitos_alimenticios=payload.habitos_alimenticios,
-        alergias=payload.alergias,
-        objetivos=payload.objetivos,
-    )
+    try:
+        perfil = PerfilInfantil.crear(
+            tutor_id=tutor_id,
+            nombre=payload.nombre,
+            edad=payload.edad,
+            sexo=payload.sexo,
+            peso_kg=payload.peso_kg,
+            estatura_cm=payload.estatura_cm,
+            nivel_actividad_fisica=payload.nivel_actividad_fisica,
+            habitos_alimenticios=payload.habitos_alimenticios,
+            alergias=payload.alergias,
+            objetivos=payload.objetivos,
+        )
+    except PerfilInfantilInvalido as exc:
+        raise HTTPException(
+            status_code=422, detail=str(exc)
+        ) from exc
     
     await repo.insertar(perfil)
     return await repo.obtener_por_id(perfil.id)
@@ -125,32 +135,28 @@ async def actualizar_perfil(
     repo: PerfilInfantilRepository = Depends(get_perfil_repository),
 ) -> Any:
     tutor_id = user["uid"]
-    perfil_dto = await repo.obtener_por_id(perfil_id)
-    
-    if not perfil_dto or perfil_dto.tutor_id != tutor_id:
+    entidad = await repo.obtener_entidad(perfil_id)
+
+    if entidad is None or entidad.tutor_id != tutor_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Perfil no encontrado o no pertenece al tutor",
         )
 
     datos = payload.model_dump(exclude_unset=True)
-    perfil_actualizado = PerfilInfantil(
-        id=perfil_dto.id,
-        tutor_id=perfil_dto.tutor_id,
-        nombre=datos.get("nombre", perfil_dto.nombre),
-        edad=datos.get("edad", perfil_dto.edad),
-        sexo=datos.get("sexo", perfil_dto.sexo),
-        peso_kg=datos.get("peso_kg", perfil_dto.peso_kg),
-        estatura_cm=datos.get("estatura_cm", perfil_dto.estatura_cm),
-        nivel_actividad_fisica=datos.get("nivel_actividad_fisica", perfil_dto.nivel_actividad_fisica),
-        habitos_alimenticios=datos.get("habitos_alimenticios", perfil_dto.habitos_alimenticios),
-        alergias=tuple(datos.get("alergias", perfil_dto.alergias)),
-        objetivos=datos.get("objetivos", perfil_dto.objetivos),
-        activo=perfil_dto.activo,
-        creado_en=perfil_dto.creado_en,
-    )
-    
-    await repo.actualizar(perfil_actualizado)
+    if datos.get("alergias") is not None:
+        datos["alergias"] = tuple(datos["alergias"])
+
+    try:
+        actualizado = replace(
+            entidad, **datos, actualizado_en=datetime.now(timezone.utc)
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422, detail=str(exc)
+        ) from exc
+
+    await repo.actualizar(actualizado)
     return await repo.obtener_por_id(perfil_id)
 
 
