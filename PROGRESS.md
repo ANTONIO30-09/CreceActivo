@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema Mongo, repositorio y CRUD de perfiles infantiles (44 tests pasando). Módulo 2 con modelos, seed y frontend inicial de nutrición. Módulo 3 con la base de la biblioteca de videos (frontend). Detalle por módulo y por integrante en `docs/AVANCES.md`.
+Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema Mongo, repositorio y CRUD de perfiles infantiles (44 tests pasando). Módulo 2 con modelos, seed, frontend inicial de nutrición y dominio de nutrición (entidades, enums, reglas, excepciones, 40 tests). Módulo 3 con la base de la biblioteca de videos (frontend). Detalle por módulo y por integrante en `docs/AVANCES.md`.
 
 ## Decisiones tomadas
 
@@ -69,3 +69,9 @@ Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema M
 - Script de carga MP4 sin sobrescritura y endpoint autenticado para URLs temporales.
 - Reglas de acceso y documentación de integración.
 - Pendiente: configurar el bucket real y probar con Firebase.
+
+## 2026-10-07 — Módulo 2: dominio de nutrición — Juan Pablo (PR #17)
+- Entidades `Plato` y `MenuInfantil` inmutables, con validación de invariantes en `__post_init__`.
+- Enums `RangoEdad` y `TipoComida`; regla `obtener_rango_edad` en `reglas.py`.
+- Excepciones de dominio: `ErrorDominioNutricion`, `EdadFueraDeRango`, `PlatoInvalido`, `MenuInvalido`.
+- 40 tests nuevos de dominio puro, sin Mongo ni Firebase. Backend: 106 tests pasando.
