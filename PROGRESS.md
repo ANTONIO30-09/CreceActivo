@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-Inicialización del repositorio. Estructura base creada siguiendo arquitectura hexagonal (monolito modular). Sin funcionalidad implementada todavía.
+Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema Mongo, repositorio y CRUD de perfiles infantiles (44 tests pasando). Módulo 2 con modelos, seed y frontend inicial de nutrición. Módulo 3 con la base de la biblioteca de videos (frontend). Detalle por módulo y por integrante en `docs/AVANCES.md`.
 
 ## Decisiones tomadas
 
@@ -12,10 +12,11 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 
 ## Próximos pasos
 
-- [ ] Definir el primer `port` de Módulo 1 (perfil infantil) para que Módulo 2 y 3 puedan empezar a construir contra ese contrato.
-- [ ] Configurar conexión real a MongoDB Atlas (con `.env`, no subir credenciales).
-- [ ] Configurar proyecto de Firebase (Auth + Storage).
-- [ ] Documentar los primeros contratos en `docs/contratos.md`.
+- [ ] Módulo 1: frontend de registro, login y perfiles; tests de POST exitoso, GET y DELETE; probar el repositorio contra un Mongo real.
+- [ ] Módulo 2: guías y menús, IMC infantil con percentiles, chatbot con respuestas validadas, solicitud a especialistas y endpoints del módulo; verificar que `seed_mod2.py` carga datos.
+- [ ] Módulo 3: backend, storage de videos, registro de rutinas/agua/minutos, rachas e insignias y metas familiares.
+- [ ] Completar `.env.example` con todas las variables de `config.py` (hoy solo trae `MONGODB_URI`).
+- [ ] Configurar Firebase Storage y la conexión real a MongoDB Atlas para el equipo (credenciales por canal privado, nunca en el repo).
 
 ## 2026-09-15 — Módulo 1, Fase 1 (mergeado a dev, PR #1)
 
@@ -38,7 +39,7 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 - [ ] Fase 3: CRUD de `PerfilInfantil` + repositorio Mongo (por empezar).
 
 **Modulos 2 y 3:** pueden pegarle al backend en `http://localhost:8000`.
-- M�dulo 3: Se inició la estructuración de componentes para la biblioteca de videos. 
+- Módulo 3: Se inició la estructuración de componentes para la biblioteca de videos. 
 
 ## 2026-09-22 — Módulo 1, esquema Mongo de perfiles_infantiles
 
@@ -55,3 +56,10 @@ Inicialización del repositorio. Estructura base creada siguiendo arquitectura h
 
 - [x] Definición de modelos Pydantic para Menús, Guías y Especialistas (`backend/app/modulo2_nutricion/models.py`).
 - [x] Creación de script de carga inicial de datos sintéticos de prueba (`backend/seed_mod2.py`).
+
+## 2026-10-07 — Integración y correcciones (Módulo 1)
+- [x] Integradas en `dev` las ramas de Nicolás (esquema Mongo), Natalia (repositorio), David (CRUD), Patrick (modelos y seed), Matt (frontend de nutrición) y el módulo 3 (biblioteca de videos).
+- [x] Corregido `PATCH /modulo1/perfiles/{id}` (PR #7): usaba campos que el DTO no expone y devolvía 500; los errores de dominio ahora responden 422.
+- [x] Respuesta de perfiles alineada con el DTO público: ya no incluye `activo`, `creado_en` ni `actualizado_en`.
+- [x] README con nombres completos, módulos y roles (PR #8) y `docs/AVANCES.md` (PR #10).
+- Tests del backend: 44 pasando. El frontend compila con `npm run build`.
