@@ -49,6 +49,10 @@ class Settings(BaseSettings):
     firebase_project_id: str = Field(...)
     firebase_service_account_path: str = Field(...)
 
+    # Opcional para permitir arrancar Modulo 1 sin configurar Storage.
+    firebase_storage_bucket: str = ""
+    video_url_ttl_seconds: int = Field(default=900, ge=60, le=3600)
+
     # String separado por comas. Ver `cors_origins_list`.
     cors_origins: str = "http://localhost:5173"
 
