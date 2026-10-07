@@ -85,7 +85,7 @@ async def crear_perfil(
         )
     except PerfilInfantilInvalido as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+            status_code=422, detail=str(exc)
         ) from exc
     
     await repo.insertar(perfil)
@@ -153,7 +153,7 @@ async def actualizar_perfil(
         )
     except ValueError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+            status_code=422, detail=str(exc)
         ) from exc
 
     await repo.actualizar(actualizado)
