@@ -29,3 +29,11 @@ Thumbs.db
 # Editores
 .vscode/
 .idea/
+
+# Credenciales y multimedia locales
+serviceAccount*.json
+*service-account*.json
+*firebase-adminsdk*.json
+secrets/
+*.mp4
+.pytest_cache/

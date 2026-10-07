@@ -244,3 +244,19 @@ Pendiente de revisar en conjunto, sin tocar la rama del Modulo 2: el
 PR #3 inserta en `menus` y `specialists` sin validador y con nombres en
 ingles. Cuando se alineen, se les aplica esta convencion.
 
+
+---
+
+## Módulo 3 — Storage de videos, versión 1.0
+
+Responsable: Kevin Peña Jamachi. Ruta pública:
+`app.modulo3_ejercicios.ports.video_storage_port`.
+
+`VideoStoragePort` expone `subir_video(Path, GrupoEdad, UUID)` y
+`obtener_acceso(GrupoEdad, UUID)` (async). La carga es administrativa; el API
+solo entrega lectura temporal a tutores autenticados. Objetos educativos en
+`modulo3/videos/{grupo_edad}/{uuid}.mp4`, sin datos de menores.
+
+API: `GET /modulo3/videos/{grupo_edad}/{video_id}/url`, Bearer Firebase.
+Devuelve `url` y `expires_at`. Mongo guarda `storage_path`, no URLs temporales.
+Consultar `docs/modulo3_storage.md` para errores, configuración e integración.
