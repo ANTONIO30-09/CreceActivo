@@ -1,0 +1,49 @@
+// Router principal de la app. Define rutas y layout.
+import React from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth/AuthContext';
+import Sidebar from './components/Sidebar';
+import Login from './pages/Login';
+import Perfiles from './pages/Perfiles';
+import Nutricion from './pages/Nutricion';
+import Progreso from './pages/Progreso';
+
+function Layout({ children }) {
+  return (
+    <div className="layout">
+      <Sidebar />
+      <div className="content">{children}</div>
+    </div>
+  );
+}
+
+function Protegida({ children }) {
+  const { tutor, cargando } = useAuth();
+  if (cargando) return <div className="loading-full">Cargando...</div>;
+  if (!tutor) return <Navigate to="/login" replace />;
+  return <Layout>{children}</Layout>;
+}
+
+function RutaPublica({ children }) {
+  const { tutor, cargando } = useAuth();
+  if (cargando) return <div className="loading-full">Cargando...</div>;
+  if (tutor) return <Navigate to="/perfiles" replace />;
+  return children;
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<RutaPublica><Login /></RutaPublica>} />
+          <Route path="/perfiles" element={<Protegida><Perfiles /></Protegida>} />
+          <Route path="/nutricion" element={<Protegida><Nutricion /></Protegida>} />
+          <Route path="/progreso" element={<Protegida><Progreso /></Protegida>} />
+          <Route path="/" element={<Navigate to="/perfiles" replace />} />
+          <Route path="*" element={<Navigate to="/perfiles" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
