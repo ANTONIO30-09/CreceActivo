@@ -40,3 +40,5 @@ secrets/
 .env.backup.*
 docs/*.backup.*
 backend/**/*.backup.*
+PROGRESS.md.backup.*
+*.md.backup.*
