@@ -20,3 +20,4 @@ class VideoMetaResponse(BaseModel):
     dificultad: Dificultad
     materiales: list[str]
     recomendaciones_seguridad: list[str]
+    url_demo: str | None = None

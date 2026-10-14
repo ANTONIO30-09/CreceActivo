@@ -140,66 +140,155 @@ export default function Perfiles() {
           </div>
         )}
 
-        {/* ===== Detalle (diseño distinto al form) ===== */}
+        {/* ===== Detalle extravagante ===== */}
         {detalle && (
-          <div className="modal-bg" onClick={() => setDetalle(null)}>
-            <div className="perfil-detalle" onClick={(e) => e.stopPropagation()}>
-              <header className="perfil-detalle-head">
-                <div className="perfil-detalle-avatar">
-                  <img src={avatarDe(detalle)} alt="" />
+          <div className="modal-bg modal-bg-hero" onClick={() => setDetalle(null)}>
+            <div
+              className={'kid-hero kid-hero-' + (detalle.sexo === 'femenino' ? 'girl' : 'boy')}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Fondo decorativo */}
+              <div className="kid-bg" aria-hidden="true">
+                <span className="kid-blob kid-blob-1" />
+                <span className="kid-blob kid-blob-2" />
+                <span className="kid-blob kid-blob-3" />
+                <span className="kid-star kid-star-1">✦</span>
+                <span className="kid-star kid-star-2">✦</span>
+                <span className="kid-star kid-star-3">✦</span>
+                <span className="kid-star kid-star-4">✦</span>
+              </div>
+
+              <button className="kid-cerrar" onClick={() => setDetalle(null)} aria-label="Cerrar">✕</button>
+
+              {/* Hero con avatar grande */}
+              <header className="kid-top">
+                <div className="kid-avatar-glow">
+                  <div className="kid-avatar-ring" />
+                  <div className="kid-avatar-ring kid-avatar-ring-2" />
+                  <img src={avatarDe(detalle)} alt="" className="kid-avatar" />
                 </div>
-                <div className="perfil-detalle-title">
-                  <span className="eyebrow">PERFIL INFANTIL</span>
-                  <h2>{detalle.nombre}</h2>
-                  <p>{detalle.edad} años · {SEXO_LABEL[detalle.sexo] || detalle.sexo}</p>
+                <div className="kid-title">
+                  <span className="kid-kicker">PERFIL INFANTIL</span>
+                  <h1>{detalle.nombre}</h1>
+                  <div className="kid-pills">
+                    <span className="kid-pill">🎂 {detalle.edad} años</span>
+                    <span className="kid-pill">
+                      {detalle.sexo === 'femenino' ? '♀' : detalle.sexo === 'masculino' ? '♂' : '✦'}
+                      {' '}{SEXO_LABEL[detalle.sexo] || detalle.sexo}
+                    </span>
+                    <span className="kid-pill kid-pill-live">
+                      <i /> Activo
+                    </span>
+                  </div>
                 </div>
               </header>
 
-              <div className="perfil-detalle-stats">
-                <div className="stat-card">
-                  <span className="stat-label">Peso</span>
-                  <span className="stat-value">{detalle.peso_kg}<small> kg</small></span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Estatura</span>
-                  <span className="stat-value">{detalle.estatura_cm}<small> cm</small></span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-label">Actividad</span>
-                  <span className="stat-value stat-value-sm">{NIVEL_LABEL[detalle.nivel_actividad_fisica] || '—'}</span>
-                </div>
-              </div>
-
-              <div className="perfil-detalle-body">
-                {detalle.habitos_alimenticios && (
-                  <section>
-                    <h4>Hábitos alimenticios</h4>
-                    <p>{detalle.habitos_alimenticios}</p>
-                  </section>
-                )}
-                {detalle.alergias?.length > 0 && (
-                  <section>
-                    <h4>Alergias</h4>
-                    <div className="chips-inline">
-                      {detalle.alergias.map((a, i) => <span key={i} className="tag">{a}</span>)}
+              {/* Stats grandes con gráficos circulares */}
+              <section className="kid-stats">
+                <div className="kid-stat">
+                  <div className="kid-stat-ring" style={{ '--pct': Math.min(100, (detalle.peso_kg / 60) * 100) }}>
+                    <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="42" className="kid-ring-bg" />
+                      <circle cx="50" cy="50" r="42" className="kid-ring-fg" />
+                    </svg>
+                    <div className="kid-stat-val">
+                      <strong>{detalle.peso_kg}</strong>
+                      <span>kg</span>
                     </div>
-                  </section>
-                )}
-                {detalle.objetivos && (
-                  <section>
-                    <h4>Objetivos</h4>
-                    <p>{detalle.objetivos}</p>
-                  </section>
-                )}
-              </div>
+                  </div>
+                  <span className="kid-stat-lbl">Peso</span>
+                </div>
 
-              <div className="perfil-detalle-actions">
-                <button className="btn-ghost" onClick={() => setDetalle(null)}>Cerrar</button>
-                <button className="btn-danger" onClick={() => desactivar(detalle)}>Desactivar</button>
-                <button className="primary" onClick={() => { setEditando(detalle); setDetalle(null); }}>
-                  Editar
+                <div className="kid-stat">
+                  <div className="kid-stat-ring" style={{ '--pct': Math.min(100, (detalle.estatura_cm / 180) * 100) }}>
+                    <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="42" className="kid-ring-bg" />
+                      <circle cx="50" cy="50" r="42" className="kid-ring-fg" />
+                    </svg>
+                    <div className="kid-stat-val">
+                      <strong>{detalle.estatura_cm}</strong>
+                      <span>cm</span>
+                    </div>
+                  </div>
+                  <span className="kid-stat-lbl">Estatura</span>
+                </div>
+
+                <div className="kid-stat">
+                  <div className="kid-stat-ring kid-stat-ring-energia" style={{ '--pct': 40 + (['sedentario','ligero','moderado','activo','muy_activo'].indexOf(detalle.nivel_actividad_fisica) * 15) }}>
+                    <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="42" className="kid-ring-bg" />
+                      <circle cx="50" cy="50" r="42" className="kid-ring-fg" />
+                    </svg>
+                    <div className="kid-stat-val">
+                      <strong>⚡</strong>
+                    </div>
+                  </div>
+                  <span className="kid-stat-lbl">{NIVEL_LABEL[detalle.nivel_actividad_fisica] || '—'}</span>
+                </div>
+              </section>
+
+              {/* Cuerpo con tarjetas coloridas */}
+              <section className="kid-body">
+                {detalle.habitos_alimenticios && (
+                  <div className="kid-block kid-block-green">
+                    <div className="kid-block-ico">🍽</div>
+                    <div className="kid-block-txt">
+                      <h3>Hábitos alimenticios</h3>
+                      <p>{detalle.habitos_alimenticios}</p>
+                    </div>
+                  </div>
+                )}
+
+                {detalle.alergias?.length > 0 && (
+                  <div className="kid-block kid-block-red">
+                    <div className="kid-block-ico">⚠</div>
+                    <div className="kid-block-txt">
+                      <h3>Alergias a tener en cuenta</h3>
+                      <div className="kid-tags">
+                        {detalle.alergias.map((a, i) => (
+                          <span key={i} className="kid-tag">{a}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {detalle.objetivos && (
+                  <div className="kid-block kid-block-amber">
+                    <div className="kid-block-ico">🎯</div>
+                    <div className="kid-block-txt">
+                      <h3>Objetivo familiar</h3>
+                      <p>{detalle.objetivos}</p>
+                    </div>
+                  </div>
+                )}
+
+                {!detalle.habitos_alimenticios && !detalle.alergias?.length && !detalle.objetivos && (
+                  <div className="kid-block kid-block-empty">
+                    <div className="kid-block-ico">✨</div>
+                    <div className="kid-block-txt">
+                      <h3>Sin datos adicionales</h3>
+                      <p>Edita el perfil para añadir hábitos, alergias u objetivos.</p>
+                    </div>
+                  </div>
+                )}
+              </section>
+
+              {/* Acciones grandes */}
+              <footer className="kid-acciones">
+                <button className="kid-btn kid-btn-ghost" onClick={() => setDetalle(null)}>
+                  Cerrar
                 </button>
-              </div>
+                <button className="kid-btn kid-btn-danger" onClick={() => desactivar(detalle)}>
+                  Desactivar perfil
+                </button>
+                <button
+                  className="kid-btn kid-btn-primary"
+                  onClick={() => { setEditando(detalle); setDetalle(null); }}
+                >
+                  ✎ Editar perfil
+                </button>
+              </footer>
             </div>
           </div>
         )}

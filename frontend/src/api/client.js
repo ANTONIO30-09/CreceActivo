@@ -39,6 +39,11 @@ export const perfiles = {
   eliminar: (id) => request('DELETE', `/modulo1/perfiles/${id}`),
 };
 
+// ---- Modulo 1: tutores ----
+export const tutores = {
+  sync: (body) => request('POST', '/modulo1/tutores/sync', body || {}),
+};
+
 // ---- Modulo 2: nutricion ----
 export const nutricion = {
   health: () => request('GET', '/modulo2/health'),
@@ -90,4 +95,4 @@ export const progreso = {
   archivarMeta: (metaId) => request('DELETE', `/modulo3/metas/${metaId}`),
 };
 
-export default { perfiles, nutricion, imc, chatbot, videos, progreso, config };
+export default { perfiles, tutores, nutricion, imc, chatbot, videos, progreso, config };
