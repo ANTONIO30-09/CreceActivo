@@ -100,3 +100,9 @@ class IMCResponse(BaseModel):
     z: float
     categoria: str
     aviso: str
+
+
+class ChatRequest(BaseModel):
+    """Entrada del chatbot: solo la pregunta del tutor."""
+
+    pregunta: str = Field(..., min_length=1, max_length=2000)
