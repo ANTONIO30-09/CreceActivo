@@ -9,7 +9,9 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.database import get_db
+from app.core.propiedad import exigir_perfil_del_tutor, get_perfil_port
 from app.core.security import verificar_firebase_token
+from app.modulo1_usuarios.ports import PerfilInfantilPort
 from app.modulo3_ejercicios.adapters.api.schemas import (
     InsigniaResponse,
     MarcarMetaRequest,
@@ -45,8 +47,10 @@ async def registrar_actividad(
     body: RegistroCreateRequest,
     user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: ProgresoRepository = Depends(get_progreso_repository),
+    perfiles: PerfilInfantilPort = Depends(get_perfil_port),
 ) -> RegistroResponse:
     """Registra una actividad (rutina, agua, minutos) del dia."""
+    await exigir_perfil_del_tutor(body.perfil_id, user, perfiles)
     registro = await repo.registrar_actividad(
         perfil_id=body.perfil_id,
         tutor_id=user["uid"],
@@ -62,10 +66,12 @@ async def registrar_actividad(
 )
 async def listar_registros(
     perfil_id: str,
-    _user: dict[str, Any] = Depends(verificar_firebase_token),
+    user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: ProgresoRepository = Depends(get_progreso_repository),
+    perfiles: PerfilInfantilPort = Depends(get_perfil_port),
 ) -> list[RegistroResponse]:
     """Lista los registros de un perfil."""
+    await exigir_perfil_del_tutor(perfil_id, user, perfiles)
     registros = await repo.listar_registros(perfil_id)
     return [RegistroResponse.model_validate(r) for r in registros]
 
@@ -79,10 +85,12 @@ async def listar_registros(
 )
 async def obtener_progreso(
     perfil_id: str,
-    _user: dict[str, Any] = Depends(verificar_firebase_token),
+    user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: ProgresoRepository = Depends(get_progreso_repository),
+    perfiles: PerfilInfantilPort = Depends(get_perfil_port),
 ) -> ProgresoResponse:
     """Devuelve racha actual, mejor racha, total e insignias del perfil."""
+    await exigir_perfil_del_tutor(perfil_id, user, perfiles)
     progreso = await repo.obtener_progreso(perfil_id)
     return ProgresoResponse(
         perfil_id=progreso.perfil_id,
@@ -121,8 +129,10 @@ async def crear_meta(
     body: MetaCreateRequest,
     user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: ProgresoRepository = Depends(get_progreso_repository),
+    perfiles: PerfilInfantilPort = Depends(get_perfil_port),
 ) -> MetaResponse:
     """Crea una meta familiar para un perfil."""
+    await exigir_perfil_del_tutor(body.perfil_id, user, perfiles)
     meta = await repo.crear_meta(
         perfil_id=body.perfil_id,
         tutor_id=user["uid"],
@@ -139,10 +149,12 @@ async def crear_meta(
 )
 async def listar_metas(
     perfil_id: str,
-    _user: dict[str, Any] = Depends(verificar_firebase_token),
+    user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: ProgresoRepository = Depends(get_progreso_repository),
+    perfiles: PerfilInfantilPort = Depends(get_perfil_port),
 ) -> list[MetaResponse]:
     """Lista las metas activas de un perfil con su avance semanal."""
+    await exigir_perfil_del_tutor(perfil_id, user, perfiles)
     metas = await repo.listar_metas(perfil_id)
     return [MetaResponse.model_validate(m) for m in metas]
 
