@@ -37,3 +37,4 @@ serviceAccount*.json
 secrets/
 *.mp4
 .pytest_cache/
+.env.backup.*
