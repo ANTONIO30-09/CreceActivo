@@ -3,6 +3,9 @@ from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
+from types import SimpleNamespace
+
+from app.core.propiedad import get_perfil_port
 from app.core.security import verificar_firebase_token
 from app.main import app
 from app.modulo2_nutricion.adapters.api.router import get_nutricion_repository
@@ -117,10 +120,21 @@ def _especialista(eid: str, rol: str = "Nutricionista") -> EspecialistaDTO:
     )
 
 
+class _PerfilesFalso:
+    """Simula el Modulo 1: todo perfil consultado pertenece a `uid`."""
+
+    def __init__(self, uid: str) -> None:
+        self.uid = uid
+
+    async def obtener_por_id(self, perfil_id):
+        return SimpleNamespace(id=perfil_id, tutor_id=self.uid)
+
+
 def _cliente(repo: RepoFalso, uid: str = "tutor-1") -> TestClient:
     """Cliente con repo y auth mockeados (sin lifespan de Firebase)."""
     app.dependency_overrides[verificar_firebase_token] = lambda: {"uid": uid}
     app.dependency_overrides[get_nutricion_repository] = lambda: repo
+    app.dependency_overrides[get_perfil_port] = lambda: _PerfilesFalso(uid)
     return TestClient(app)
 
 

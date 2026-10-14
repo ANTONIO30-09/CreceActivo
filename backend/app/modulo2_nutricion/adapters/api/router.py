@@ -11,7 +11,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.config import get_settings
 from app.core.database import get_db
+from app.core.propiedad import exigir_perfil_del_tutor, get_perfil_port
 from app.core.security import verificar_firebase_token
+from app.modulo1_usuarios.ports import PerfilInfantilPort
 from app.modulo2_nutricion.adapters.api.schemas import (
     EspecialistaResponse,
     GuiaResponse,
@@ -137,11 +139,13 @@ async def crear_solicitud(
     body: SolicitudCreateRequest,
     user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: NutricionRepository = Depends(get_nutricion_repository),
+    perfiles: PerfilInfantilPort = Depends(get_perfil_port),
 ) -> SolicitudResponse:
     """Crea una solicitud de orientacion a un especialista.
 
     Requiere Bearer Firebase. El tutor_id se toma del token.
     """
+    await exigir_perfil_del_tutor(body.perfil_id, user, perfiles)
     solicitud_id = await repo.crear_solicitud_orientacion(
         tutor_id=user["uid"],
         perfil_id=body.perfil_id,
