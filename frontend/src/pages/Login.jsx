@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import BallsPhysics from '../components/BallsPhysics';
 
 export default function Login() {
   const { tutor, login, registrar } = useAuth();
@@ -40,9 +41,13 @@ export default function Login() {
 
   return (
     <div className="login-page">
+      <BallsPhysics />
       <div className="login-card">
         <div className="brand login-brand">
-          <span>✳</span> <span>CreceActivo</span>
+          <div className="brand-logo-wrap">
+            <img src="/logo.png" alt="" className="brand-logo" />
+          </div>
+          <span>CreceActivo</span>
         </div>
         <h1>Bienvenido/a</h1>
         <p className="login-sub">

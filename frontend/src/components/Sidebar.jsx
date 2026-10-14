@@ -18,7 +18,8 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <a className="brand" href="/" aria-label="CreceActivo, inicio">
-        <span>✳</span> <span>CreceActivo</span>
+        <img src="/logo.png" alt="" className="brand-logo" />
+        <span>CreceActivo</span>
       </a>
 
       <p className="side-label">ESPACIO PARA FAMILIAS</p>
