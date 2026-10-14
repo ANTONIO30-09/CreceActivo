@@ -38,3 +38,4 @@ secrets/
 *.mp4
 .pytest_cache/
 .env.backup.*
+docs/*.backup.*
