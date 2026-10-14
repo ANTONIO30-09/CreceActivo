@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     firebase_storage_bucket: str = ""
     video_url_ttl_seconds: int = Field(default=900, ge=60, le=3600)
 
+    # Opcional: si falta, POST /modulo2/chat responde 503.
+    gemini_api_key: str = ""
+
     # String separado por comas. Ver `cors_origins_list`.
     cors_origins: str = "http://localhost:5173"
 

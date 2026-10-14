@@ -15,6 +15,7 @@ from app.core.propiedad import exigir_perfil_del_tutor, get_perfil_port
 from app.core.security import verificar_firebase_token
 from app.modulo1_usuarios.ports import PerfilInfantilPort
 from app.modulo2_nutricion.adapters.api.schemas import (
+    ChatRequest,
     EspecialistaResponse,
     GuiaResponse,
     IMCRequest,
@@ -26,6 +27,8 @@ from app.modulo2_nutricion.adapters.api.schemas import (
 from app.modulo2_nutricion.adapters.db.nutricion_repository import (
     NutricionRepository,
 )
+from app.modulo2_nutricion.adapters.llm.chatbot_gemini import ChatbotGemini
+from app.modulo2_nutricion.ports.chatbot_port import DERIVAR, ChatbotPort
 from app.modulo2_nutricion.domain.enums import RangoEdad, TipoComida
 from app.modulo2_nutricion.domain.imc import evaluar_imc
 
@@ -189,3 +192,53 @@ async def calcular_imc_perfil(
         perfil_id=perfil.id, imc=res.imc, z=res.z,
         categoria=res.categoria, aviso=res.aviso,
     )
+
+
+# ---------------- Chatbot (RF-08, CU-04, RNF-09) ----------------
+
+
+def _contexto_nutricional(guias, menus) -> str:
+    partes: list[str] = []
+    for g in guias:
+        partes.append(f"GUIA {g.titulo}: {g.contenido}")
+        for h in g.habitos_clave:
+            partes.append(f"- habito: {h}")
+    for m in menus:
+        partes.append(f"MENU {m.titulo} ({m.tipo_comida.value}):")
+        for p in m.platos:
+            partes.append(f"- {p.nombre}: {p.descripcion}")
+        for r in m.recomendaciones:
+            partes.append(f"- recomendacion: {r}")
+    return "\n".join(partes)
+
+
+def get_chatbot_port() -> ChatbotPort:
+    """Dependencia: devuelve el bot o 503 si falta la API key."""
+    settings = get_settings()
+    if not settings.gemini_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Chatbot no configurado",
+        )
+    return ChatbotGemini(settings.gemini_api_key)
+
+
+@router.post("/chat")
+async def chat_nutricional(
+    body: ChatRequest,
+    _user: dict[str, Any] = Depends(verificar_firebase_token),
+    repo: NutricionRepository = Depends(get_nutricion_repository),
+    bot: ChatbotPort = Depends(get_chatbot_port),
+) -> dict[str, str]:
+    """Chatbot nutricional. 503 si falta GEMINI_API_KEY. Nunca diagnostica."""
+    pregunta = body.pregunta.strip()
+    if not pregunta:
+        raise HTTPException(status_code=422, detail="pregunta requerida")
+
+    guias = await repo.listar_guias()
+    menus = await repo.listar_menus()
+    contexto = _contexto_nutricional(guias, menus)
+    if not contexto.strip():
+        return {"respuesta": DERIVAR}
+
+    return {"respuesta": await bot.responder(pregunta, contexto)}
