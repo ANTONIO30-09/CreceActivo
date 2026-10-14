@@ -35,6 +35,18 @@ def get_progreso_repository(
     return ProgresoRepository(db)
 
 
+async def _exigir_meta_del_tutor(
+    repo: ProgresoRepository, meta_id: str, user: dict[str, Any]
+) -> None:
+    """404 si la meta no existe, esta archivada o es de otro tutor."""
+    meta = await repo.obtener_meta(meta_id)
+    if meta is None or meta.tutor_id != user["uid"]:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Meta no encontrada o inactiva",
+        )
+
+
 # ---------------- Registros ----------------
 
 
@@ -166,10 +178,11 @@ async def listar_metas(
 async def marcar_meta(
     meta_id: str,
     body: MarcarMetaRequest,
-    _user: dict[str, Any] = Depends(verificar_firebase_token),
+    user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: ProgresoRepository = Depends(get_progreso_repository),
 ) -> MetaResponse:
     """Marca un dia cumplido para una meta. 404 si no existe o no esta activa."""
+    await _exigir_meta_del_tutor(repo, meta_id, user)
     meta = await repo.marcar_meta(meta_id, body.fecha)
     if meta is None:
         raise HTTPException(
@@ -185,10 +198,11 @@ async def marcar_meta(
 )
 async def archivar_meta(
     meta_id: str,
-    _user: dict[str, Any] = Depends(verificar_firebase_token),
+    user: dict[str, Any] = Depends(verificar_firebase_token),
     repo: ProgresoRepository = Depends(get_progreso_repository),
 ) -> None:
     """Archiva (borrado logico) una meta. 404 si no existe."""
+    await _exigir_meta_del_tutor(repo, meta_id, user)
     ok = await repo.archivar_meta(meta_id)
     if not ok:
         raise HTTPException(
