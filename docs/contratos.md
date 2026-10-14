@@ -6,7 +6,7 @@ Este documento registra las interfaces (`ports`) que cada módulo expone hacia l
 _(por definir)_
 
 ## Módulo 2 — Nutrición y orientación profesional
-_(por definir)_
+Ver seccion detallada mas abajo.
 
 ## Módulo 3 — Ejercicios, progreso y motivación
 _(por definir)_
@@ -243,6 +243,204 @@ de cargarla:
 Pendiente de revisar en conjunto, sin tocar la rama del Modulo 2: el
 PR #3 inserta en `menus` y `specialists` sin validador y con nombres en
 ingles. Cuando se alineen, se les aplica esta convencion.
+
+
+---
+
+## Módulo 2 — Nutrición y orientación profesional
+
+- **Version:** 1.0
+- **Fecha:** 2026-10-14
+- **Rama:** `feat/mod2-backend-franco`
+- **Ruta publica (unica permitida para Modulos 1 y 3):**
+  `app.modulo2_nutricion.ports.contenido_nutricional_port`
+
+### 1. Regla de dependencias (no negociable)
+
+- Modulos 1 y 3 **importan solo** desde `modulo2_nutricion.ports.contenido_nutricional_port`.
+- **Prohibido** importar `modulo2_nutricion.service`, `modulo2_nutricion.adapters.*`
+  o `modulo2_nutricion.domain.*` desde fuera del Modulo 2.
+- Internamente: `domain` no depende de `ports` ni `adapters`; `ports` depende
+  solo de `domain`; `adapters` depende de `ports` y `domain`.
+
+### 2. Enums publicos
+
+**`RangoEdad`**
+
+| Valor |
+|---|
+| `6-8 años` |
+| `9-11 años` |
+| `12-14 años` |
+
+**`TipoComida`**
+
+| Valor |
+|---|
+| `Desayuno` |
+| `Almuerzo` |
+| `Cena` |
+| `Merienda` |
+
+### 3. DTOs publicos (read-models)
+
+**`GuiaDTO`**
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `id` | `str` | Identificador UUID de la guia. |
+| `titulo` | `str` | 1-120 caracteres. |
+| `categoria` | `str` | Ej: Alimentacion, Habitos, Meriendas. |
+| `rango_edad` | `RangoEdad` | Enum. |
+| `contenido` | `str` | Texto validado por profesionales, 1-5000 caracteres. |
+| `habitos_clave` | `tuple[str, ...]` | Cada uno 1-200 caracteres, maximo 10. |
+
+**`PlatoDTO`**
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `nombre` | `str` | 1-100 caracteres. |
+| `descripcion` | `str` | 1-300 caracteres. |
+| `calorias_aprox` | `int` | Mayor o igual a 0. |
+| `ingredientes` | `tuple[str, ...]` | Cada uno 1-80 caracteres, minimo 1. |
+
+**`MenuDTO`**
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `id` | `str` | Identificador UUID del menu. |
+| `titulo` | `str` | 1-120 caracteres. |
+| `rango_edad` | `RangoEdad` | Enum. |
+| `tipo_comida` | `TipoComida` | Enum. |
+| `platos` | `tuple[PlatoDTO, ...]` | Minimo 1. |
+| `recomendaciones` | `tuple[str, ...]` | Cada uno 1-200 caracteres. |
+
+**`EspecialistaDTO`**
+
+| Campo | Tipo | Descripcion |
+|---|---|---|
+| `id` | `str` | Identificador UUID del especialista. |
+| `nombre_completo` | `str` | 1-100 caracteres. |
+| `rol` | `str` | Nutricionista, Pediatra o Entrenador. |
+| `especialidad` | `str` | 1-100 caracteres. |
+| `experiencia_anios` | `int` | Mayor o igual a 0. |
+| `biografia` | `str` | 1-1000 caracteres. |
+| `contacto_email` | `str` | Email valido. |
+| `disponible` | `bool` | Default `true`. |
+
+### 4. ContenidoNutricionalPort (interfaz ofrecida)
+
+| Metodo | Entrada | Salida | Semantica |
+|---|---|---|---|
+| `listar_guias` | `rango_edad: RangoEdad or None` | `list[GuiaDTO]` | Guias activas; filtro opcional por rango. Lista vacia si no hay. |
+| `obtener_guia` | `guia_id: str` | `GuiaDTO or None` | La guia si existe y esta activa; None si no. |
+| `listar_menus` | `rango_edad, tipo_comida` (opcionales) | `list[MenuDTO]` | Menus activos; filtros opcionales. |
+| `obtener_menu` | `menu_id: str` | `MenuDTO or None` | El menu si existe y esta activo; None si no. |
+| `listar_especialistas` | — | `list[EspecialistaDTO]` | Especialistas disponibles. |
+| `crear_solicitud_orientacion` | `tutor_id, perfil_id, especialista_id, mensaje` | `str` (id) | Crea la solicitud; devuelve su id. |
+
+Todos son `async` (FastAPI + Motor son asincronos).
+El puerto se declara con `typing.Protocol` (tipado estructural): los adapters
+**no heredan** nada.
+
+### 5. Errores
+
+En lectura el puerto no lanza excepciones de dominio: usa `None` / lista vacia.
+`crear_solicitud_orientacion` puede lanzar `PerfilNoEncontrado` o
+`EspecialistaNoEncontrado` si las referencias no existen.
+
+### 6. Politica de compatibilidad
+
+Misma que el Modulo 1:
+
+- Aniadir campos **opcionales** al DTO es no-breaking.
+- Aniadir metodos al puerto es no-breaking para consumidores, si para
+  implementaciones existentes.
+- Renombrar o eliminar campos/metodos es **breaking** y requiere bump de
+  version mayor del contrato.
+
+### 7. Fuera del contrato
+
+- Calculo de IMC (Fase 2, con tablas de percentiles OMS).
+- Chatbot con Google Gemini (diferido, sin API key en esta entrega).
+- Reglas de ejercicios (responsabilidad del Modulo 3).
+
+---
+
+## Modulo 2 — Endpoints base
+
+- **Version:** 1.0
+- **Fecha:** 2026-10-14
+
+### 1. Endpoints publicos
+
+| Metodo | Ruta | Auth | Respuesta |
+|---|---|---|---|
+| GET | /modulo2/health | No | status ok, env, db |
+| GET | /modulo2/guias | No | Lista de GuiaDTO |
+| GET | /modulo2/guias/id | No | GuiaDTO o 404 |
+| GET | /modulo2/menus | No | Lista de MenuDTO |
+| GET | /modulo2/menus/id | No | MenuDTO o 404 |
+| GET | /modulo2/especialistas | No | Lista de EspecialistaDTO |
+
+### 2. Endpoints protegidos (Bearer Firebase)
+
+| Metodo | Ruta | Auth | Respuesta |
+|---|---|---|---|
+| POST | /modulo2/solicitudes | Si | id, estado pendiente |
+
+Body esperado: perfil_id, especialista_id, mensaje de 1 a 1000 caracteres.
+
+### 3. Filtros opcionales
+
+- GET /modulo2/guias con parametro rango_edad
+- GET /modulo2/menus con parametros rango_edad y tipo_comida
+
+
+---
+
+## Persistencia interna — colecciones del Modulo 2
+
+- **Version:** 1.0
+- **Fecha:** 2026-10-14
+- **Dueno:** base de datos, Modulo 2
+- **Codigo:** app.modulo2_nutricion.adapters.db
+
+Esta seccion describe las colecciones. No es una superficie de importacion.
+Modulos 1 y 3 siguen leyendo contenido solo por ContenidoNutricionalPort.
+
+### 1. Colecciones
+
+| Coleccion | Descripcion |
+|---|---|
+| guias_nutricionales | Guias de alimentacion validadas |
+| menus_infantiles | Menus por rango de edad y tipo de comida |
+| especialistas | Nutricionistas, pediatras y entrenadores |
+| solicitudes_orientacion | Solicitudes de tutores a especialistas |
+
+Todas siguen la convencion del Modulo 1: nombre en snake_case, espanol y
+plural; id string UUID; activo bool para borrado logico cuando aplica;
+creado_en y actualizado_en UTC.
+
+### 2. Validadores
+
+Todos con jsonSchema, validationLevel strict, validationAction error.
+Se aseguran al arrancar con asegurar_colecciones_modulo2.
+
+### 3. Indices
+
+| Coleccion | Indice | Campos | Filtro |
+|---|---|---|---|
+| menus_infantiles | idx_menus_rango_tipo | rango_edad, tipo_comida | activo true |
+| guias_nutricionales | idx_guias_rango | rango_edad | activo true |
+| especialistas | idx_especialistas_disponible | disponible | ninguno |
+| solicitudes_orientacion | idx_solicitudes_tutor | tutor_id | ninguno |
+
+### 4. Alineacion con el Modulo 1
+
+El seed original (seed_mod2.py, PR 3) insertaba en menus y specialists
+con nombres en ingles y sin validador. Esta version renombra a
+menus_infantiles y especialistas y anade validadores e indices.
 
 
 ---
