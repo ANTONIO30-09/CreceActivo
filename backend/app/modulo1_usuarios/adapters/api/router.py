@@ -18,6 +18,7 @@ from app.modulo1_usuarios.domain.perfil_infantil import (
     PerfilInfantilInvalido,
 )
 from app.modulo1_usuarios.adapters.db.perfil_repository import PerfilInfantilRepository
+from app.modulo1_usuarios.adapters.db.tutor_repository import TutorRepository
 from app.modulo1_usuarios.adapters.api.schemas import (
     PerfilInfantilCreateSchema,
     PerfilInfantilUpdateSchema,
@@ -28,6 +29,10 @@ router = APIRouter(prefix="/modulo1", tags=["modulo1"])
 
 def get_perfil_repository(db: Any = Depends(get_db)) -> PerfilInfantilRepository:
     return PerfilInfantilRepository(db)
+
+
+def get_tutor_repository(db: Any = Depends(get_db)) -> TutorRepository:
+    return TutorRepository(db)
 
 
 @router.get("/health")
@@ -54,6 +59,28 @@ async def whoami(
 ) -> dict[str, Any]:
     """Endpoint protegido: devuelve el uid/email del token Bearer."""
     return {"uid": user["uid"], "email": user.get("email")}
+
+
+# ---------------- TUTORES ----------------
+
+
+@router.post("/tutores/sync")
+async def sincronizar_tutor(
+    body: dict[str, Any],
+    user: dict[str, Any] = Depends(verificar_firebase_token),
+    repo: TutorRepository = Depends(get_tutor_repository),
+) -> dict[str, Any]:
+    """Crea o actualiza el tutor autenticado (uid, email, nombre)."""
+    email = (user.get("email") or body.get("email") or "").strip().lower()
+    if not email:
+        raise HTTPException(status_code=422, detail="Email requerido")
+    nombre = (body.get("nombre") or "").strip()
+    doc = await repo.sincronizar(user["uid"], email, nombre)
+    return {
+        "uid": doc["_id"],
+        "email": doc["email"],
+        "nombre": doc.get("nombre", ""),
+    }
 
 
 # ---------------- CRUD PERFILES INFANTILES ----------------

@@ -84,3 +84,25 @@ class SolicitudResponse(BaseModel):
 
     id: str
     estado: str
+
+
+class IMCRequest(BaseModel):
+    """Entrada: solo el perfil; peso/estatura/edad/sexo salen del perfil."""
+
+    perfil_id: str = Field(..., min_length=1)
+
+
+class IMCResponse(BaseModel):
+    """Salida orientativa. Sin diagnostico."""
+
+    perfil_id: str
+    imc: float
+    z: float
+    categoria: str
+    aviso: str
+
+
+class ChatRequest(BaseModel):
+    """Entrada del chatbot: solo la pregunta del tutor."""
+
+    pregunta: str = Field(..., min_length=1, max_length=2000)

@@ -24,7 +24,10 @@ from app.core.database import cerrar_mongodb, conectar_mongodb, get_db
 from app.core.security import inicializar_firebase
 from app.modulo1_usuarios.adapters.api.router import router as modulo1_router
 from app.modulo2_nutricion.adapters.api.router import router as modulo2_router
-from app.modulo1_usuarios.adapters.db import asegurar_perfiles_infantiles
+from app.modulo1_usuarios.adapters.db import (
+    asegurar_perfiles_infantiles,
+    asegurar_tutores,
+)
 from app.modulo2_nutricion.adapters.db import asegurar_colecciones_modulo2
 from app.modulo3_ejercicios.adapters.db import asegurar_colecciones_modulo3
 from app.modulo3_ejercicios.adapters.api.router import router as modulo3_router
@@ -39,6 +42,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     inicializar_firebase()
     await conectar_mongodb()
     await asegurar_perfiles_infantiles(get_db())
+    await asegurar_tutores(get_db())
     await asegurar_colecciones_modulo2(get_db())
     await asegurar_colecciones_modulo3(get_db())
     try:

@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+tests/
+.env
+*.backup.*
+seed_*.py
+subir_video_mod3.py

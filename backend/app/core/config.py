@@ -47,11 +47,16 @@ class Settings(BaseSettings):
     mongodb_db_name: str = "creceactivo"
 
     firebase_project_id: str = Field(...)
-    firebase_service_account_path: str = Field(...)
+    # Uno de los dos: path local (dev) o JSON completo como string (Render/Cloud Run).
+    firebase_service_account_path: str = ""
+    firebase_service_account_json: str = ""
 
     # Opcional para permitir arrancar Modulo 1 sin configurar Storage.
     firebase_storage_bucket: str = ""
     video_url_ttl_seconds: int = Field(default=900, ge=60, le=3600)
+
+    # Opcional: si falta, POST /modulo2/chat responde 503.
+    gemini_api_key: str = ""
 
     # String separado por comas. Ver `cors_origins_list`.
     cors_origins: str = "http://localhost:5173"

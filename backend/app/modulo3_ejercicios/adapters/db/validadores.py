@@ -7,16 +7,20 @@ from __future__ import annotations
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
+from app.modulo3_ejercicios.domain.archivo_video import GrupoEdad
 from app.modulo3_ejercicios.domain.enums import EstadoMeta, TipoActividad
+from app.modulo3_ejercicios.domain.enums_video import Dificultad
 
 __all__ = [
     "COLLECTION_REGISTROS",
     "COLLECTION_METAS",
+    "COLLECTION_VIDEOS_META",
     "asegurar_colecciones_modulo3",
 ]
 
 COLLECTION_REGISTROS = "registros_actividad"
 COLLECTION_METAS = "metas_familiares"
+COLLECTION_VIDEOS_META = "videos_meta"
 
 VALIDATION_LEVEL = "strict"
 VALIDATION_ACTION = "error"
@@ -93,6 +97,51 @@ INDICE_METAS_PERFIL = {
 }
 
 
+def _validador_videos_meta() -> dict:
+    return {
+        "$jsonSchema": {
+            "bsonType": "object",
+            "additionalProperties": False,
+            "required": [
+                "_id", "titulo", "descripcion", "grupo_edad",
+                "duracion_seg", "dificultad", "materiales",
+                "recomendaciones_seguridad", "activo", "creado_en",
+            ],
+            "properties": {
+                "_id": {"bsonType": "string", "pattern": _UUID_PATTERN},
+                "titulo": {"bsonType": "string", "minLength": 1, "maxLength": 120},
+                "descripcion": {"bsonType": "string", "maxLength": 500},
+                "grupo_edad": {"enum": [g.value for g in GrupoEdad]},
+                "duracion_seg": {"bsonType": "int", "minimum": 1, "maximum": 3600},
+                "dificultad": {"enum": [d.value for d in Dificultad]},
+                "materiales": {
+                    "bsonType": "array",
+                    "items": {"bsonType": "string", "minLength": 1},
+                },
+                "recomendaciones_seguridad": {
+                    "bsonType": "array",
+                    "items": {"bsonType": "string", "minLength": 1},
+                },
+                "activo": {"bsonType": "bool"},
+                "url_demo": {
+                    "oneOf": [
+                        {"bsonType": "string", "maxLength": 500},
+                        {"bsonType": "null"},
+                    ]
+                },
+                "creado_en": {"bsonType": "date"},
+            },
+        }
+    }
+
+
+INDICE_VIDEOS_META_GRUPO = {
+    "keys": [("grupo_edad", 1), ("activo", 1)],
+    "name": "idx_videos_meta_grupo_activo",
+    "partialFilterExpression": None,
+}
+
+
 async def _asegurar(db, nombre: str, validador: dict, indice: dict) -> None:
     opciones = {
         "validator": validador,
@@ -115,3 +164,7 @@ async def asegurar_colecciones_modulo3(db: AsyncIOMotorDatabase) -> None:
     """Crea o actualiza validadores e indices del Modulo 3."""
     await _asegurar(db, COLLECTION_REGISTROS, _validador_registros(), INDICE_REGISTROS_PERFIL)
     await _asegurar(db, COLLECTION_METAS, _validador_metas(), INDICE_METAS_PERFIL)
+    await _asegurar(
+        db, COLLECTION_VIDEOS_META,
+        _validador_videos_meta(), INDICE_VIDEOS_META_GRUPO,
+    )
