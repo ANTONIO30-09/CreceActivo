@@ -2,7 +2,13 @@
 
 ## Estado actual
 
-Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema Mongo, repositorio y CRUD de perfiles infantiles (44 tests pasando). Módulo 2 con modelos, seed y frontend inicial de nutrición. Módulo 3 con la base de la biblioteca de videos (frontend). Detalle por módulo y por integrante en `docs/AVANCES.md`.
+Backend completo de los 3 modulos funcionando end-to-end contra MongoDB Atlas real. Total: 146 tests pasando.
+
+- Modulo 1: CRUD de perfiles infantiles con auth Firebase (44 tests).
+- Modulo 2: puerto `ContenidoNutricionalPort`, adaptador Mongo con 4 colecciones (guias_nutricionales, menus_infantiles, especialistas, solicitudes_orientacion), endpoints de guias/menus/especialistas/solicitudes, seed cargado en Atlas (55 tests).
+- Modulo 3: storage de videos (Kevin), puerto `ProgresoPort`, adaptador Mongo con 2 colecciones (registros_actividad, metas_familiares), endpoints de registros/progreso/insignias/metas (25 tests).
+
+Detalle por modulo y por integrante en `docs/AVANCES.md`.
 
 ## Decisiones tomadas
 
@@ -12,11 +18,11 @@ Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema M
 
 ## Próximos pasos
 
-- [ ] Módulo 1: frontend de registro, login y perfiles; tests de POST exitoso, GET y DELETE; probar el repositorio contra un Mongo real.
-- [ ] Módulo 2: guías y menús, IMC infantil con percentiles, chatbot con respuestas validadas, solicitud a especialistas y endpoints del módulo; verificar que `seed_mod2.py` carga datos.
-- [ ] Módulo 3: backend, storage de videos, registro de rutinas/agua/minutos, rachas e insignias y metas familiares.
-- [ ] Completar `.env.example` con todas las variables de `config.py` (hoy solo trae `MONGODB_URI`).
-- [ ] Configurar Firebase Storage y la conexión real a MongoDB Atlas para el equipo (credenciales por canal privado, nunca en el repo).
+- [ ] Módulo 1: frontend de registro, login y perfiles (Natalia).
+- [ ] Módulo 2: IMC infantil con percentiles (RF-06, RF-07); chatbot con respuestas validadas (RF-08, diferido hasta tener API key de Gemini).
+- [ ] Módulo 3: catalogo de videos con metadatos (RF-11) y frontend de progreso/metas.
+- [ ] Configurar Firebase Storage real (bucket) y probar la subida de videos.
+- [ ] Frontend completo de los tres modulos y despliegue (Vercel + Cloud Run).
 
 ## 2026-09-15 — Módulo 1, Fase 1 (mergeado a dev, PR #1)
 
@@ -69,3 +75,44 @@ Backend del Módulo 1 funcional: contrato público, auth con Firebase, esquema M
 - Script de carga MP4 sin sobrescritura y endpoint autenticado para URLs temporales.
 - Reglas de acceso y documentación de integración.
 - Pendiente: configurar el bucket real y probar con Firebase.
+
+## 2026-10-07 — Módulo 2: dominio de nutrición — Juan Pablo (PR #17)
+- Entidades `Plato` y `MenuInfantil` inmutables, con validación de invariantes en `__post_init__`.
+- Enums `RangoEdad` y `TipoComida`; regla `obtener_rango_edad` en `reglas.py`.
+- Excepciones de dominio: `ErrorDominioNutricion`, `EdadFueraDeRango`, `PlatoInvalido`, `MenuInvalido`.
+- 40 tests nuevos de dominio puro, sin Mongo ni Firebase. Backend: 106 tests pasando.
+
+## 2026-10-14 — Módulo 2: backend completo (contrato, adaptador, endpoints, seed)
+
+- [x] Contrato público del M2 en `docs/contratos.md`: `ContenidoNutricionalPort` + DTOs (`GuiaDTO`, `PlatoDTO`, `MenuDTO`, `EspecialistaDTO`).
+- [x] Adaptador Mongo con 4 colecciones y validadores `$jsonSchema`:
+  - `guias_nutricionales` (índice `idx_guias_rango`).
+  - `menus_infantiles` (índice `idx_menus_rango_tipo`).
+  - `especialistas` (índice `idx_especialistas_disponible`).
+  - `solicitudes_orientacion` (índice `idx_solicitudes_tutor`).
+- [x] Repositorio `NutricionRepository` que implementa `ContenidoNutricionalPort`.
+- [x] Router HTTP: `GET /modulo2/health`, `GET /modulo2/guias` (+ filtro rango_edad), `GET /modulo2/guias/{id}`, `GET /modulo2/menus` (+ filtros), `GET /modulo2/menus/{id}`, `GET /modulo2/especialistas`, `POST /modulo2/solicitudes` (protegido).
+- [x] Seed reescrito sobre el repositorio. Cargados 3 guías, 3 menús y 3 especialistas en Mongo Atlas real.
+- [x] 15 tests nuevos del router con repo falso. Backend: 121 tests pasando.
+- [x] `models.py` (Pydantic paralelo al dominio) marcado como `[DEPRECATED]`; su contenido quedó absorbido por `domain/entidades.py`, `ports/dto.py` y `adapters/api/schemas.py`.
+- [x] Verificado end-to-end contra Atlas: `GET /modulo2/guias?rango_edad=6-8 años` devuelve solo las guías del rango.
+
+**Módulos 1 y 3:** el puerto del M2 no se importa directamente. Ninguna dependencia cruzada rota. Los 121 tests previos siguen verdes.
+
+## 2026-10-14 — Módulo 3: backend de progreso, rachas, insignias y metas
+
+- [x] Contrato público del M3 ampliado: además de `VideoStoragePort` (Kevin), se añade `ProgresoPort` en `app.modulo3_ejercicios.ports.progreso_port` con DTOs (`RegistroDTO`, `MetaDTO`, `InsigniaDTO`, `ProgresoDTO`).
+- [x] Dominio puro del M3 en `domain/`:
+  - Enums `TipoActividad` (rutina, agua, minutos) y `EstadoMeta` (activa, archivada).
+  - Entidades inmutables `RegistroActividad` y `MetaFamiliar` con validación en `__post_init__`.
+  - Reglas puras `racha_actual`, `mejor_racha`, `semana_actual`, `porcentaje_meta` y `evaluar_insignias` (8 insignias predefinidas). Lógica portada del aporte de Luis David Cespedes Camacho y adaptada al dominio del proyecto.
+- [x] Adaptador Mongo con 2 colecciones y validadores `$jsonSchema`:
+  - `registros_actividad` (índice `idx_registros_perfil_fecha`).
+  - `metas_familiares` (índice `idx_metas_perfil_estado`).
+- [x] Repositorio `ProgresoRepository` que implementa `ProgresoPort` con 7 métodos.
+- [x] Router HTTP nuevo: `POST /modulo3/registros`, `GET /modulo3/registros/{perfil_id}`, `GET /modulo3/progreso/{perfil_id}`, `GET /modulo3/insignias/catalogo`, `POST /modulo3/metas`, `GET /modulo3/metas/{perfil_id}`, `POST /modulo3/metas/{meta_id}/marcar`, `DELETE /modulo3/metas/{meta_id}`.
+- [x] Verificados end-to-end: los 9 endpoints del M3 responden 401 sin token Bearer.
+- [x] 25 tests nuevos de dominio puro del M3. Backend: 146 tests pasando.
+- [ ] Pendiente: catalogo de videos con metadatos (RF-11) y frontend de progreso/metas.
+
+**Módulos 1 y 2:** sin cambios en sus puertos. Los 121 tests previos siguen verdes.
