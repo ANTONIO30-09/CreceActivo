@@ -7,6 +7,9 @@ import Login from './pages/Login';
 import Perfiles from './pages/Perfiles';
 import Nutricion from './pages/Nutricion';
 import Progreso from './pages/Progreso';
+import Imc from './pages/Imc';
+import Chatbot from './pages/Chatbot';
+import Videos from './pages/Videos';
 
 function Layout({ children }) {
   return (
@@ -39,6 +42,9 @@ export default function App() {
           <Route path="/login" element={<RutaPublica><Login /></RutaPublica>} />
           <Route path="/perfiles" element={<Protegida><Perfiles /></Protegida>} />
           <Route path="/nutricion" element={<Protegida><Nutricion /></Protegida>} />
+          <Route path="/imc" element={<Protegida><Imc /></Protegida>} />
+          <Route path="/chatbot" element={<Protegida><Chatbot /></Protegida>} />
+          <Route path="/videos" element={<Protegida><Videos /></Protegida>} />
           <Route path="/progreso" element={<Protegida><Progreso /></Protegida>} />
           <Route path="/" element={<Navigate to="/perfiles" replace />} />
           <Route path="*" element={<Navigate to="/perfiles" replace />} />
