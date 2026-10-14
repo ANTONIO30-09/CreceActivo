@@ -17,6 +17,8 @@ from app.modulo1_usuarios.ports import PerfilInfantilPort
 from app.modulo2_nutricion.adapters.api.schemas import (
     EspecialistaResponse,
     GuiaResponse,
+    IMCRequest,
+    IMCResponse,
     MenuResponse,
     SolicitudCreateRequest,
     SolicitudResponse,
@@ -25,6 +27,7 @@ from app.modulo2_nutricion.adapters.db.nutricion_repository import (
     NutricionRepository,
 )
 from app.modulo2_nutricion.domain.enums import RangoEdad, TipoComida
+from app.modulo2_nutricion.domain.imc import evaluar_imc
 
 router = APIRouter(prefix="/modulo2", tags=["modulo2"])
 
@@ -153,3 +156,36 @@ async def crear_solicitud(
         mensaje=body.mensaje,
     )
     return SolicitudResponse(id=solicitud_id, estado="pendiente")
+
+
+# ---------------- IMC (orientativo, OMS 5-19) ----------------
+
+
+@router.post(
+    "/imc",
+    response_model=IMCResponse,
+)
+async def calcular_imc_perfil(
+    body: IMCRequest,
+    user: dict[str, Any] = Depends(verificar_firebase_token),
+    perfiles: PerfilInfantilPort = Depends(get_perfil_port),
+) -> IMCResponse:
+    """Calcula el IMC del perfil y lo situa en percentiles OMS (5-19).
+
+    Comprueba que el perfil pertenece al tutor autenticado.
+    Respuesta ORIENTATIVA; nunca diagnostica.
+    """
+    await exigir_perfil_del_tutor(body.perfil_id, user, perfiles)
+    perfil = await perfiles.obtener_por_id(body.perfil_id)
+    if perfil is None:
+        raise HTTPException(status_code=404, detail="Perfil no encontrado")
+    res = evaluar_imc(
+        sexo=perfil.sexo,
+        edad_anios=perfil.edad,
+        peso_kg=perfil.peso_kg,
+        estatura_cm=perfil.estatura_cm,
+    )
+    return IMCResponse(
+        perfil_id=perfil.id, imc=res.imc, z=res.z,
+        categoria=res.categoria, aviso=res.aviso,
+    )
