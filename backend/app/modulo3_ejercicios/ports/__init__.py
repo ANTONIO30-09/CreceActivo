@@ -16,6 +16,7 @@ from .video_storage_port import (
     VideoStoragePort,
     VideoYaExisteError,
 )
+from .video_meta_port import VideoMetaDTO, VideoMetaPort
 
 __all__ = [
     # Progreso
@@ -33,4 +34,7 @@ __all__ = [
     "VideoNoEncontradoError",
     "VideoYaExisteError",
     "StorageNoDisponibleError",
+    # Video metadata
+    "VideoMetaPort",
+    "VideoMetaDTO",
 ]
