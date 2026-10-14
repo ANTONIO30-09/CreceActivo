@@ -55,6 +55,7 @@ def _doc_a_registro(doc: dict[str, Any]) -> RegistroActividad:
         valor=int(doc["valor"]),
         fecha=_a_date(doc["fecha"]),
         creado_en=_a_utc(doc.get("creado_en")),
+        meta_id=doc.get("meta_id"),
     )
 
 
@@ -129,6 +130,7 @@ class ProgresoRepository:
         fin = datetime.combine(domingo, datetime.max.time()).replace(tzinfo=timezone.utc)
         total = await self._registros.count_documents({
             "perfil_id": perfil_id,
+            "meta_id": meta_id,
             "fecha": {"$gte": inicio, "$lte": fin},
         })
         return total
@@ -185,17 +187,11 @@ class ProgresoRepository:
         )
         return None if doc is None else _doc_a_meta(doc)
 
-    async def marcar_meta(self, meta_id: str, fecha_iso: str) -> MetaDTO | None:
+    async def marcar_meta(self, meta_id: str, fecha: date) -> MetaDTO | None:
         doc = await self._metas.find_one({"_id": meta_id, "estado": EstadoMeta.ACTIVA.value})
         if doc is None:
             return None
         meta = _doc_a_meta(doc)
-
-        # Registrar como actividad tipo rutina en la fecha indicada
-        try:
-            fecha = date.fromisoformat(fecha_iso)
-        except ValueError:
-            return None
 
         registro_id = nuevo_id()
         ahora = ahora_utc()
@@ -205,6 +201,7 @@ class ProgresoRepository:
             "tutor_id": meta.tutor_id,
             "tipo": TipoActividad.RUTINA.value,
             "valor": 1,
+            "meta_id": meta.id,
             "fecha": datetime.combine(fecha, datetime.min.time()).replace(tzinfo=timezone.utc),
             "creado_en": ahora,
             "actualizado_en": ahora,
