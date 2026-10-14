@@ -34,6 +34,10 @@ def client():
              "app.main.asegurar_colecciones_modulo2",
              new_callable=AsyncMock,
          ), \
+         patch(
+             "app.main.asegurar_colecciones_modulo3",
+             new_callable=AsyncMock,
+         ), \
          patch("app.main.cerrar_mongodb", new_callable=AsyncMock), \
          patch(
              "app.modulo1_usuarios.adapters.api.router.get_db",
