@@ -123,6 +123,12 @@ def _validador_videos_meta() -> dict:
                     "items": {"bsonType": "string", "minLength": 1},
                 },
                 "activo": {"bsonType": "bool"},
+                "url_demo": {
+                    "oneOf": [
+                        {"bsonType": "string", "maxLength": 500},
+                        {"bsonType": "null"},
+                    ]
+                },
                 "creado_en": {"bsonType": "date"},
             },
         }

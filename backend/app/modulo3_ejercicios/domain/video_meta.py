@@ -27,6 +27,7 @@ class VideoMeta:
     materiales: tuple[str, ...]
     recomendaciones_seguridad: tuple[str, ...]
     activo: bool = True
+    url_demo: str | None = None
     creado_en: datetime | None = None
 
     def __post_init__(self) -> None:
@@ -53,4 +54,7 @@ class VideoMeta:
         if self.creado_en is None:
             object.__setattr__(self, "creado_en", datetime.now(timezone.utc))
         elif self.creado_en.tzinfo is None:
-            raise ValueError("creado_en debe tener tz")
+            object.__setattr__(
+                self, "creado_en",
+                self.creado_en.replace(tzinfo=timezone.utc),
+            )

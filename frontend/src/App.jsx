@@ -2,7 +2,9 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthContext';
+import { ThemeProvider } from './theme';
 import Sidebar from './components/Sidebar';
+import ChatbotFlotante from './components/ChatbotFlotante';
 import Login from './pages/Login';
 import Perfiles from './pages/Perfiles';
 import Nutricion from './pages/Nutricion';
@@ -16,6 +18,7 @@ function Layout({ children }) {
     <div className="layout">
       <Sidebar />
       <div className="content">{children}</div>
+      <ChatbotFlotante />
     </div>
   );
 }
@@ -37,6 +40,7 @@ function RutaPublica({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<RutaPublica><Login /></RutaPublica>} />
@@ -50,6 +54,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/perfiles" replace />} />
         </Routes>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

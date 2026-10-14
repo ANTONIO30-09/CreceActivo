@@ -22,6 +22,7 @@ class VideoMetaDTO:
     dificultad: Dificultad
     materiales: tuple[str, ...]
     recomendaciones_seguridad: tuple[str, ...]
+    url_demo: str | None = None
 
 
 @runtime_checkable
