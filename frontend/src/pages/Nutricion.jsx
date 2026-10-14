@@ -1,11 +1,9 @@
 // Modulo 2: guias y menus conectados al backend real.
 import React, { useEffect, useMemo, useState } from 'react';
-import Header from '../components/Header';
 import EmptyState from '../components/EmptyState';
 import { nutricion } from '../api/client';
 
 const RANGOS = ['Todas las edades', '6-8 años', '9-11 años', '12-14 años'];
-
 const ICONOS = { Habitos: '✦', Meriendas: '◒', Alimentacion: '◇' };
 const COLORES = ['sage', 'peach', 'lavender', 'sand'];
 
@@ -37,15 +35,14 @@ export default function Nutricion() {
 
   return (
     <>
-      <Header titulo="Nutricion y orientacion profesional" />
       <main>
-        <section className="hero small">
+        <div className="page-head">
           <div>
-            <span className="eyebrow">CRECER JUNTOS</span>
-            <h1>Pequeños hábitos.{'\n'}Grandes comienzos.</h1>
+            <h1>Nutrición</h1>
             <p>Guías y menús validados por profesionales de la nutrición.</p>
           </div>
-        </section>
+          <span className="pill-count">{visibles.length} guías</span>
+        </div>
 
         {error && (
           <div className="notice warn">
@@ -54,31 +51,31 @@ export default function Nutricion() {
           </div>
         )}
 
-        <div className="section-heading">
+        <section className="hero small">
           <div>
-            <h2>Guías para tu familia</h2>
-            <p>Encuentra contenido por tema y rango de edad.</p>
+            <span className="eyebrow">CRECER JUNTOS</span>
+            <h1>Pequeños hábitos.{'\n'}Grandes comienzos.</h1>
+            <p>Contenido aprobado por nutricionistas, listo para tu familia.</p>
           </div>
-          <span>{visibles.length} resultados</span>
-        </div>
+        </section>
 
-        <div className="filters">
-          <label>Buscar guía
+        <div className="filters-row">
+          <label className="field grow">Buscar guía
             <input
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Escribe un título..."
+              placeholder="Escribe un título…"
             />
           </label>
-          <label>Rango de edad
+          <label className="field w-220">Rango de edad
             <select value={edad} onChange={(e) => setEdad(e.target.value)}>
               {RANGOS.map((r) => <option key={r}>{r}</option>)}
             </select>
           </label>
         </div>
 
-        {cargando && <p>Cargando guias...</p>}
+        {cargando && <p>Cargando guías…</p>}
 
         {!cargando && visibles.length === 0 && (
           <EmptyState
@@ -88,36 +85,64 @@ export default function Nutricion() {
           />
         )}
 
-        {detalle ? (
-          <section className="detail">
-            <button className="text-button" onClick={() => setDetalle(null)}>← Volver al catálogo</button>
-            <p className="eyebrow">{detalle.categoria} · {detalle.rango_edad}</p>
-            <h2>{detalle.titulo}</h2>
-            <p>{detalle.contenido}</p>
-            <h3>Habitos clave</h3>
-            <ul>{(detalle.habitos_clave || []).map((h) => <li key={h}>{h}</li>)}</ul>
-          </section>
-        ) : (
-          !cargando && visibles.length > 0 && (
-            <div className="cards">
-              {visibles.map((g, i) => (
-                <article key={g.id} className="card">
-                  <div className={'card-art ' + COLORES[i % COLORES.length]}>
-                    <span>{ICONOS[g.categoria] || '✦'}</span>
-                    <small>{g.categoria}</small>
+        {!cargando && visibles.length > 0 && (
+          <div className="cards">
+            {visibles.map((g, i) => (
+              <article key={g.id} className="card card-clickable" onClick={() => setDetalle(g)}>
+                <div className={'card-art ' + COLORES[i % COLORES.length]}>
+                  <span>{ICONOS[g.categoria] || '✦'}</span>
+                  <small>{g.categoria}</small>
+                </div>
+                <div className="card-body">
+                  <div className="card-meta">
+                    <span>{g.rango_edad}</span>
+                    <span>Validado ✓</span>
                   </div>
-                  <div className="card-body">
-                    <div className="card-meta">
-                      <span>{g.rango_edad}</span>
-                      <span>Validado</span>
+                  <h3>{g.titulo}</h3>
+                  <span className="card-cta">Ver guía →</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        {detalle && (
+          <div className="modal-bg" onClick={() => setDetalle(null)}>
+            <div className="perfil-detalle" onClick={(e) => e.stopPropagation()}>
+              <header className="perfil-detalle-head">
+                <div className="perfil-detalle-avatar" style={{ fontSize: 44 }} aria-hidden="true">
+                  {ICONOS[detalle.categoria] || '✦'}
+                </div>
+                <div className="perfil-detalle-title">
+                  <span className="eyebrow">{detalle.categoria?.toUpperCase()}</span>
+                  <h2>{detalle.titulo}</h2>
+                  <p>{detalle.rango_edad} años · Validado por profesionales</p>
+                </div>
+              </header>
+
+              <div className="perfil-detalle-body" style={{ paddingTop: 20 }}>
+                <section>
+                  <h4>Contenido</h4>
+                  <p>{detalle.contenido}</p>
+                </section>
+                {detalle.habitos_clave?.length > 0 && (
+                  <section>
+                    <h4>Hábitos clave</h4>
+                    <div className="chips-inline">
+                      {detalle.habitos_clave.map((h, i) => (
+                        <span key={i} className="tag">{h}</span>
+                      ))}
                     </div>
-                    <h3>{g.titulo}</h3>
-                    <button onClick={() => setDetalle(g)}>Ver guía →</button>
-                  </div>
-                </article>
-              ))}
+                  </section>
+                )}
+              </div>
+
+              <div className="perfil-detalle-actions">
+                <button className="btn-ghost" onClick={() => setDetalle(null)}>Cerrar</button>
+                <button className="primary" onClick={() => setDetalle(null)}>Entendido</button>
+              </div>
             </div>
-          )
+          </div>
         )}
       </main>
     </>
