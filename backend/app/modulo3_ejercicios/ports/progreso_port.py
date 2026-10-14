@@ -5,6 +5,7 @@ otros modulos. No expone adapters ni domain.
 """
 from __future__ import annotations
 
+from datetime import date
 from typing import Protocol, runtime_checkable
 
 from .dto import InsigniaDTO, MetaDTO, ProgresoDTO, RegistroDTO, TipoActividad
@@ -57,7 +58,7 @@ class ProgresoPort(Protocol):
         ...
 
     async def marcar_meta(
-        self, meta_id: str, fecha_iso: str
+        self, meta_id: str, fecha: date
     ) -> MetaDTO | None:
         ...
 

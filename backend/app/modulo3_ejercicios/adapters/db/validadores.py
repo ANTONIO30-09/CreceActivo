@@ -40,6 +40,12 @@ def _validador_registros() -> dict:
                 "_id": {"bsonType": "string", "pattern": _UUID_PATTERN},
                 "perfil_id": {"bsonType": "string", "pattern": _UUID_PATTERN},
                 "tutor_id": {"bsonType": "string", "minLength": 1, "maxLength": 128},
+                "meta_id": {
+                    "oneOf": [
+                        {"bsonType": "string", "pattern": _UUID_PATTERN},
+                        {"bsonType": "null"},
+                    ]
+                },
                 "tipo": {"enum": [t.value for t in TipoActividad]},
                 "valor": {"bsonType": "int", "minimum": 0, "maximum": 10000},
                 "fecha": {"bsonType": "date"},

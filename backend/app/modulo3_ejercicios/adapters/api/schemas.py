@@ -57,7 +57,7 @@ class MetaResponse(BaseModel):
 
 
 class MarcarMetaRequest(BaseModel):
-    fecha: str = Field(..., min_length=10, max_length=10)
+    fecha: date
 
 
 class InsigniaResponse(BaseModel):
