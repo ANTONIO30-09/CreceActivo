@@ -59,6 +59,24 @@ export const nutricion = {
   solicitar: (body) => request('POST', '/modulo2/solicitudes', body),
 };
 
+// ---- Modulo 2: IMC y chatbot ----
+export const imc = {
+  calcular: (perfilId) => request('POST', '/modulo2/imc', { perfil_id: perfilId }),
+};
+
+export const chatbot = {
+  preguntar: (pregunta) => request('POST', '/modulo2/chat', { pregunta }),
+};
+
+// ---- Modulo 3: videos ----
+export const videos = {
+  listar: (grupoEdad) => {
+    const q = grupoEdad ? `?grupo_edad=${encodeURIComponent(grupoEdad)}` : '';
+    return request('GET', `/modulo3/videos${q}`);
+  },
+  obtener: (videoId) => request('GET', `/modulo3/videos/${videoId}`),
+};
+
 // ---- Modulo 3: progreso ----
 export const progreso = {
   registrar: (body) => request('POST', '/modulo3/registros', body),
@@ -72,4 +90,4 @@ export const progreso = {
   archivarMeta: (metaId) => request('DELETE', `/modulo3/metas/${metaId}`),
 };
 
-export default { perfiles, nutricion, progreso, config };
+export default { perfiles, nutricion, imc, chatbot, videos, progreso, config };

@@ -6,6 +6,9 @@ import { useAuth } from '../auth/AuthContext';
 const NAV_ITEMS = [
   { to: '/perfiles', icono: '👧', label: 'Mis hijos' },
   { to: '/nutricion', icono: '🥗', label: 'Nutricion' },
+  { to: '/imc', icono: '📏', label: 'IMC orientativo' },
+  { to: '/chatbot', icono: '💬', label: 'Chatbot' },
+  { to: '/videos', icono: '🎬', label: 'Videos' },
   { to: '/progreso', icono: '🏃', label: 'Progreso' },
 ];
 
