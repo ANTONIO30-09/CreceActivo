@@ -39,3 +39,4 @@ secrets/
 .pytest_cache/
 .env.backup.*
 docs/*.backup.*
+backend/**/*.backup.*
