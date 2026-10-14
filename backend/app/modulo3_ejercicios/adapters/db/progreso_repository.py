@@ -178,6 +178,13 @@ class ProgresoRepository:
             ))
         return resultado
 
+    async def obtener_meta(self, meta_id: str):
+        """Uso interno: meta activa (entidad) o None. Sirve para comprobar al tutor."""
+        doc = await self._metas.find_one(
+            {"_id": meta_id, "estado": EstadoMeta.ACTIVA.value}
+        )
+        return None if doc is None else _doc_a_meta(doc)
+
     async def marcar_meta(self, meta_id: str, fecha_iso: str) -> MetaDTO | None:
         doc = await self._metas.find_one({"_id": meta_id, "estado": EstadoMeta.ACTIVA.value})
         if doc is None:
