@@ -22,6 +22,7 @@ from app.core.config import get_settings
 from app.core.database import cerrar_mongodb, conectar_mongodb, get_db
 from app.core.security import inicializar_firebase
 from app.modulo1_usuarios.adapters.api.router import router as modulo1_router
+from app.modulo2_nutricion.adapters.api.router import router as modulo2_router
 from app.modulo1_usuarios.adapters.db import asegurar_perfiles_infantiles
 from app.modulo2_nutricion.adapters.db import asegurar_colecciones_modulo2
 from app.modulo3_ejercicios.adapters.api.router import router as modulo3_router
@@ -57,6 +58,7 @@ app.add_middleware(
 )
 
 app.include_router(modulo1_router)
+app.include_router(modulo2_router)
 app.include_router(modulo3_router)
 
 
