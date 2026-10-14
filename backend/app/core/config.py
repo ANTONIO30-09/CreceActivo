@@ -47,7 +47,9 @@ class Settings(BaseSettings):
     mongodb_db_name: str = "creceactivo"
 
     firebase_project_id: str = Field(...)
-    firebase_service_account_path: str = Field(...)
+    # Uno de los dos: path local (dev) o JSON completo como string (Render/Cloud Run).
+    firebase_service_account_path: str = ""
+    firebase_service_account_json: str = ""
 
     # Opcional para permitir arrancar Modulo 1 sin configurar Storage.
     firebase_storage_bucket: str = ""
