@@ -2,8 +2,8 @@
 
 Estado al 14 de octubre de 2026, reconstruido a partir del historial de Git.
 
-Estado general: `dev` con 146 tests pasando, backend de los 3 modulos funcionando
-end-to-end contra MongoDB Atlas real.
+Estado general: `dev` con 171 tests pasando, backend de los 3 modulos funcionando
+end-to-end contra MongoDB Atlas real, mas IMC OMS, chatbot Gemini y metadatos de videos.
 
 ## Resumen por modulo
 
@@ -132,3 +132,34 @@ end-to-end contra MongoDB Atlas real.
 - Franco Guerra no pudo subir commits por motivos personales. El lider cubrio su parte del backend del M2 integramente.
 - Luis David Cespedes entrego su trabajo en ZIPs con stack distinto al proyecto. Su logica se rescato y adapto; el resto se descarto.
 - Todos los modulos tienen su backend funcional y testeado a la fecha del 14 de octubre de 2026.
+
+## Sesion 2026-10-14 — Cierre Hito 3 (IMC, chatbot, metadatos videos)
+
+Tres funcionalidades adicionales del backend, mergeadas a `dev` tras el Hito 3.
+Total: 171 tests pasando.
+
+**IMC infantil orientativo (RF-06, RF-07) — Juan Pablo Villca (`juanw21`)**
+- Dominio puro `modulo2_nutricion/domain/imc.py` con tablas LMS oficiales WHO 2007 BMI-for-age 5-19.
+- Fuente: who.int/tools/growth-reference-data-for-5to19-years/indicators/bmi-for-age. CSV embebidos (168 filas por sexo).
+- Endpoint `POST /modulo2/imc` autenticado, exige perfil del tutor. Categorias neutras + aviso orientativo. 8 tests (PR #23).
+
+**Chatbot nutricional (RF-08, CU-04, RNF-09) — Franco Guerra**
+- `ChatbotPort` + adaptador `ChatbotGemini` sobre google-genai.
+- Endpoint `POST /modulo2/chat` autenticado. 503 si falta `GEMINI_API_KEY`. System prompt prohibe diagnosticos y deriva a profesional si no hay base.
+- Contexto desde guias y menus del propio Modulo 2. 4 tests (PR #24).
+
+**Metadatos de videos (RF-11) — Luis David Cespedes**
+- Coleccion `videos_meta` con validador e indice por (grupo_edad, activo).
+- Endpoints `GET /modulo3/videos?grupo_edad=...` y `GET /modulo3/videos/{video_id}` autenticados.
+- Reutiliza `GrupoEdad` de Kevin. La URL firmada sigue en `/modulo3/videos/{grupo}/{id}/url`. 6 tests (PR #25).
+
+**Fix de avance de metas (bugs #2 y #3) — Antonio**
+- `_completado_semana` filtra por `meta_id`; `MarcarMetaRequest.fecha` pasa a `date` (422 ante ISO invalido). PR #22.
+
+**Pendiente:**
+- Adapter Gemini no probado contra la API real (falta token Firebase + entorno con `.env`).
+- Tests de adaptadores Mongo M2/M3 y del frontend.
+
+**Nota de atribucion:** las implementaciones se hicieron en sesion del lider (Antonio) y
+se asignan por rol segun el PDF del proyecto (Juan Pablo M2 Backend, Franco M2 Backend
+y Migraciones, Luis David M3 Backend y Base de datos).

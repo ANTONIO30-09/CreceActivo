@@ -42,3 +42,4 @@ docs/*.backup.*
 backend/**/*.backup.*
 PROGRESS.md.backup.*
 *.md.backup.*
+.firebase/

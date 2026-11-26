@@ -2,7 +2,7 @@
 
 ## Estado actual
 
-Backend completo de los 3 modulos funcionando end-to-end contra MongoDB Atlas real. Total: 146 tests pasando.
+Backend completo de los 3 modulos funcionando end-to-end contra MongoDB Atlas real. Total: 171 tests pasando.
 
 - Modulo 1: CRUD de perfiles infantiles con auth Firebase (44 tests).
 - Modulo 2: puerto `ContenidoNutricionalPort`, adaptador Mongo con 4 colecciones (guias_nutricionales, menus_infantiles, especialistas, solicitudes_orientacion), endpoints de guias/menus/especialistas/solicitudes, seed cargado en Atlas (55 tests).
@@ -19,8 +19,10 @@ Detalle por modulo y por integrante en `docs/AVANCES.md`.
 ## Próximos pasos
 
 - [ ] Módulo 1: frontend de registro, login y perfiles (Natalia).
-- [ ] Módulo 2: IMC infantil con percentiles (RF-06, RF-07); chatbot con respuestas validadas (RF-08, diferido hasta tener API key de Gemini).
-- [ ] Módulo 3: catalogo de videos con metadatos (RF-11) y frontend de progreso/metas.
+- [x] Módulo 2: IMC infantil con percentiles OMS (RF-06, RF-07) — Juan Pablo Villca, PR #23.
+- [x] Módulo 2: chatbot con respuestas validadas via Gemini (RF-08, CU-04, RNF-09) — Franco Guerra, PR #24.
+- [x] Módulo 3: catalogo de videos con metadatos (RF-11) — Luis David Cespedes, PR #25.
+- [ ] Módulo 3: frontend de progreso/metas.
 - [ ] Configurar Firebase Storage real (bucket) y probar la subida de videos.
 - [ ] Frontend completo de los tres modulos y despliegue (Vercel + Cloud Run).
 
@@ -116,3 +118,14 @@ Detalle por modulo y por integrante en `docs/AVANCES.md`.
 - [ ] Pendiente: catalogo de videos con metadatos (RF-11) y frontend de progreso/metas.
 
 **Módulos 1 y 2:** sin cambios en sus puertos. Los 121 tests previos siguen verdes.
+
+## 2026-10-14 — Cierre Sesion A (backend faltante Hito 3)
+
+- [x] Bugs de avance de metas: filtrado por `meta_id` y 422 ante fecha invalida — Antonio, PR #22.
+- [x] IMC infantil orientativo con percentiles OMS — Juan Pablo Villca, PR #23.
+- [x] Chatbot nutricional con Gemini detras de `ChatbotPort` — Franco Guerra, PR #24.
+- [x] Metadatos de videos por rango de edad — Luis David Cespedes, PR #25.
+- Total: 171 tests pasando.
+- Pendiente: adapter Gemini sin probar contra la API real; tests de adaptadores Mongo M2/M3; `.env.example` del frontend; docs de contratos actualizadas.
+
+**Atribucion:** las implementaciones se hicieron en sesion del lider (Antonio) y se asignan por rol segun el PDF del proyecto.

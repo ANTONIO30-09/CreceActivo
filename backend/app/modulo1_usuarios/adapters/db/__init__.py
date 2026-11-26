@@ -5,5 +5,12 @@ El repositorio que implemente `PerfilInfantilPort` queda para la Fase 3.
 """
 from .perfil_repository import PerfilInfantilRepository
 from .perfiles_infantiles import asegurar_perfiles_infantiles
+from .tutor_repository import TutorRepository
+from .tutores import asegurar_tutores
 
-__all__ = ["asegurar_perfiles_infantiles"]
+__all__ = [
+    "asegurar_perfiles_infantiles",
+    "asegurar_tutores",
+    "PerfilInfantilRepository",
+    "TutorRepository",
+]
